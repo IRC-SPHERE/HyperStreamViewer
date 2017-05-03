@@ -21,15 +21,19 @@
 
 from flask import Flask, render_template
 from flask_bower import Bower
+from hyperstream import HyperStream
 
 app = Flask(__name__)
 Bower(app)
 app.jinja_env.add_extension('jinja2.ext.do')
 
+hs = HyperStream()
+a = 1
+
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", hyperstream=hs)
 
 
 @app.route("/dashboard")

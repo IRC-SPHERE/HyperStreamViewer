@@ -89,3 +89,5 @@ ENV/
 .ropeproject
 
 bower_components
+hyperstream_config.json
+hyperstream_config_dev.json

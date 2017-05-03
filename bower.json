@@ -1,5 +1,5 @@
 {
-  "name": "HyperStreamViewer",
+  "name": "hyperstream-viewer",
   "homepage": "https://github.com/IRC-SPHERE/HyperStreamViewer",
   "authors": [
     "Tom Diethe <tdiethe@gmail.com>"
@@ -8,7 +8,8 @@
   "main": "server.py",
   "keywords": [
     "streaming",
-    "dashboard"
+    "dashboard",
+    "visualisation"
   ],
   "license": "MIT",
   "ignore": [
