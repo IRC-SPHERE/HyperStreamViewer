@@ -1,0 +1,27 @@
+{
+  "name": "HyperStreamViewer",
+  "homepage": "https://github.com/IRC-SPHERE/HyperStreamViewer",
+  "authors": [
+    "Tom Diethe <tdiethe@gmail.com>"
+  ],
+  "description": "Viewer for HyperStream",
+  "main": "server.py",
+  "keywords": [
+    "streaming",
+    "dashboard"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "keen-dashboards": "^0.1.1",
+    "keen-js": "^3.4.1",
+    "holderjs": "^2.9.4"
+  }
+}

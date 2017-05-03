@@ -1,0 +1,48 @@
+{% extends "bootstrap.html" %}
+
+{% block html_attribs %} ng-app="data_viewer"{% endblock html_attribs %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('.static', filename='data_viewer.css') }}" />
+{% endblock %}
+
+{% block title %}SPHERE Data Viewer{% endblock %}
+
+{% block navbar %}
+     {% set page_index = {'_': 0} %}
+     {% for page in ['dashboard'] %}
+        {% if page in request.base_url %}
+            {% do page_index.update({'_': loop.index}) %}
+        {% endif %}
+     {% endfor %}
+     {% set index = page_index._ %}
+
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+         <div class="container-fluid">
+             <div class="navbar-header">
+                 <a href="{{ url_for('index') }}" style="padding-right: 50px">
+                    <img alt="SPHERE" src="{{ url_for('.static', filename='sphere.png') }}" width="50">
+                 </a>
+             </div>static
+             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                 <ul class="nav nav-tabs">
+                     <li role="presentation"{% if index == 0 %} class="active"{% endif %}><a href="{{ url_for('index') }}">Home</a></li>
+                     <li role="presentation"{% if index == 1 %} class="active"{% endif %}><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                 </ul>
+             </div>
+        </div>
+    </nav>
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

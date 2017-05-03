@@ -1,0 +1,58 @@
+.navbar-form > * {
+   margin:0 0 0 10px;
+}
+
+.min30 {
+    display: inline-block;
+    min-width: 30px;
+}
+
+.min160 {
+    display: inline-block;
+    min-width: 160px;
+}
+
+.max100 {
+    display: inline-block;
+    max-width: 100px;
+}
+
+.max120 {
+    display: inline-block;
+    max-width: 120px;
+}
+
+
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+    margin-top: 60px;
+    margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5;
+}
+
+.container .text-muted {
+  margin-top: 20px;
+}
+
+
+/* CSS REQUIRED */
+.state-icon {
+    left: -5px;
+}
+.list-group-item-primary {
+    color: rgb(255, 255, 255);
+    background-color: rgb(66, 139, 202);
+}
