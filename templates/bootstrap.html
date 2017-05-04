@@ -7,7 +7,7 @@
     <title>{% block title %}{% endblock title %}</title>
 
     {%- block metas %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
     {%- endblock metas %}
 
     {%- block styles %}
@@ -24,11 +24,14 @@
     {%- endblock content %}
 
     {% block scripts %}
-        <script src="{{ url_for('bower.static', filename='jquery/dist/jquery.js') }}"></script>
-        <script src="{{ url_for('bower.static', filename='bootstrap/dist/js/bootstrap.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('bower.static', filename='jquery/dist/jquery.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('bower.static', filename='bootstrap/dist/js/bootstrap.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('bower.static', filename='holderjs/holder.min.js') }}"></script>
+        <script>Holder.add_theme("white", { background:"#fff", foreground:"#a7a7a7", size:10 });</script>
     {%- endblock scripts %}
     {%- endblock body %}
   </body>
+  <hr>
 {%- endblock html %}
 </html>
 {% endblock doc -%}

@@ -6,18 +6,25 @@
         <div class="jumbotron alert alert-danger">
             <h1>DEVELOPMENT VERSION</h1>
             <h2>HyperStream Data Viewer and Visualisation Dashboard</h2>
-            <p>Issue tracker on <a href=https://github.com/IRC-SPHERE/HyperStreamViewer/issues">GitHub</a></p>
+            <p>Issue tracker on <a href="https://github.com/IRC-SPHERE/HyperStreamViewer/issues">GitHub</a></p>
        </div>
     </div>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-12">
-                {{ hyperstream.plate_manager.meta_data_manager.global_plate_definitions }}
-            </div>
+            {{ hyperstream.plate_manager.meta_data_manager.global_plate_definitions }}
+            <div id="tree"></div>
         </div>
     </div>
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
+    <script type="text/javascript">
+        function getTree() {
+      // Some logic to retrieve, or generate tree structure
+      return data;
+    }
+
+    $('#tree').treeview({data: getTree()});
+    </script>
 {% endblock %}

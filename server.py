@@ -28,7 +28,7 @@ Bower(app)
 app.jinja_env.add_extension('jinja2.ext.do')
 
 hs = HyperStream()
-a = 1
+# a = 1
 
 
 @app.route("/")
@@ -42,4 +42,6 @@ def dashboard():
 
 
 if __name__ == "__main__":
+    app.jinja_env.auto_reload = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.run(host="0.0.0.0", port=5000, debug=True)
