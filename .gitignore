@@ -91,3 +91,5 @@ ENV/
 bower_components
 hyperstream_config.json
 hyperstream_config_dev.json
+plugins
+sphere_connector_package
