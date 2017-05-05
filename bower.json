@@ -23,6 +23,7 @@
     "bootstrap": "^3.3.7",
     "keen-dashboards": "^0.1.1",
     "keen-js": "^3.4.1",
-    "holderjs": "^2.9.4"
+    "holderjs": "^2.9.4",
+    "bootstrap-treeview": "^1.2.0"
   }
 }
