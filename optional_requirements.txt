@@ -1,0 +1,1 @@
+git+ssh://git@bitbucket.org/irc-sphere/sphere_connector.git#egg=sphere_connector

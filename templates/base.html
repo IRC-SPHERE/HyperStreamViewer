@@ -70,7 +70,7 @@
 {% block scripts %}
     {{ super() }}
     <script type="text/javascript" src="{{ url_for('bower.static', filename='keen-js/dist/keen.min.js') }}"></script>
-    <script type="text/javascript" src="/assets/js/meta.js"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='meta.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('bower.static', filename='bootstrap-treeview/dist/bootstrap-treeview.min.js') }}"></script>
     {#  <script type="text/javascript" src="{{ url_for('bower.static', filename='keen-dashboards/dist/keen-dashboards.js') }}"></script>#}
 

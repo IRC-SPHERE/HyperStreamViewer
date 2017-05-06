@@ -11,7 +11,7 @@
     </div>
     <div class="container-fluid">
         <div class="row">
-            {{ hyperstream.plate_manager.meta_data_manager.global_plate_definitions }}
+            {{ hyperstream.plate_manager.meta_data_manager.global_plate_definitions.to_dict() }}
             <div id="tree"></div>
         </div>
     </div>
@@ -21,8 +21,10 @@
     {{ super() }}
     <script type="text/javascript">
         function getTree() {
-      // Some logic to retrieve, or generate tree structure
-      return data;
+            // Some logic to retrieve, or generate tree structure
+            var data = {{ hyperstream.plate_manager.meta_data_manager.global_plate_definitions | treelib_to_treeview | tojson | safe }};
+            debugger;
+            return data;
     }
 
     $('#tree').treeview({data: getTree()});

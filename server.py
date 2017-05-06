@@ -23,12 +23,19 @@ from flask import Flask, render_template
 from flask_bower import Bower
 from hyperstream import HyperStream
 
-app = Flask(__name__)
-Bower(app)
-app.jinja_env.add_extension('jinja2.ext.do')
 
 hs = HyperStream()
 # a = 1
+
+
+def treelib_to_treeview(d):
+    return d
+
+
+app = Flask(__name__)
+Bower(app)
+app.jinja_env.add_extension('jinja2.ext.do')
+app.jinja_env.filters['treelib_to_treeview'] = treelib_to_treeview
 
 
 @app.route("/")
