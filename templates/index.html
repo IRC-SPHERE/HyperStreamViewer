@@ -10,8 +10,13 @@
        </div>
     </div>
     <div class="container-fluid">
-        <div class="row">
-            {{ hyperstream.plate_manager.meta_data_manager.global_plate_definitions.to_dict() }}
+        <div class="col-lg-12">
+{#            {% set d = hyperstream.plate_manager.meta_data_manager.global_plate_definitions.to_dict(with_data=True) %}#}
+{#            {% for k in d recursive %}#}
+{#                <li>{{ k }}#}
+{#                    <ul>{{ loop(d[k]) }}</ul>#}
+{#                </li>#}
+{#            {% endfor %}#}
             <div id="tree"></div>
         </div>
     </div>
@@ -22,8 +27,8 @@
     <script type="text/javascript">
         function getTree() {
             // Some logic to retrieve, or generate tree structure
-            var data = {{ hyperstream.plate_manager.meta_data_manager.global_plate_definitions | treelib_to_treeview | tojson | safe }};
-            debugger;
+            var data = {{ hyperstream.plate_manager.meta_data_manager.global_plate_definitions.to_dict(with_data=True) | treelib_to_treeview | tojson | safe }};
+            // debugger;
             return data;
     }
 

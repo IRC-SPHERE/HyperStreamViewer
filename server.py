@@ -22,6 +22,7 @@
 from flask import Flask, render_template
 from flask_bower import Bower
 from hyperstream import HyperStream
+import itertools
 
 
 hs = HyperStream()
@@ -29,7 +30,27 @@ hs = HyperStream()
 
 
 def treelib_to_treeview(d):
-    return d
+    root = []
+
+    def transform(node):
+        nodes = []
+        for item in node:
+            dd = dict(text="{}={}".format(item, node[item]['data']))
+            if 'children' in node[item]:
+                # dd['nodes'] = [dict(text='x', nodes=transform(child)) for child in node[item]['children']]
+                dd['nodes'] = list(itertools.chain(*[transform(child) for child in node[item]['children']]))
+            nodes.append(dd)
+        return nodes
+
+    for v in d['root']['children']:
+        root.append(dict(text="root", nodes=transform(v)))
+
+    return root
+
+    # if isinstance(d, collections.Mapping):
+    #     # return [{'text': k, 'nodes': [treelib_to_treeview(v['children'])]} for k, v in d.iteritems()]
+    #     return [{'text': k, 'nodes': [treelib_to_treeview(x) for x in v['children']] if 'children' in v else v['data']} for k, v in d.iteritems()]
+    # return d
 
 
 app = Flask(__name__)
