@@ -17,28 +17,13 @@
 
 {% block navbar %}
      {% set page_index = {'_': 0} %}
-     {% for page in ['dashboard'] %}
+     {% for page in ['plates', 'meta_data', 'channels', 'streams'] %}
         {% if page in request.base_url %}
             {% do page_index.update({'_': loop.index}) %}
         {% endif %}
      {% endfor %}
      {% set index = page_index._ %}
 
-{#    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">#}
-{#         <div class="container-fluid">#}
-{#             <div class="navbar-header">#}
-{#                 <a href="{{ url_for('index') }}" style="padding-right: 50px">#}
-{#                    <img alt="SPHERE" src="https://cdn.rawgit.com/IRC-SPHERE/HyperStream/dfbac332/hyperstream.svg" width="50">#}
-{#                 </a>#}
-{#             </div>#}
-{#             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">#}
-{#                 <ul class="nav nav-tabs">#}
-{#                     <li role="presentation"{% if index == 0 %} class="active"{% endif %}><a href="{{ url_for('index') }}">Home</a></li>#}
-{#                     <li role="presentation"{% if index == 1 %} class="active"{% endif %}><a href="{{ url_for('dashboard') }}">Dashboard</a></li>#}
-{#                 </ul>#}
-{#             </div>#}
-{#        </div>#}
-{#    </nav>#}
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -56,16 +41,27 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-left">
                     <li role="presentation"{% if index == 0 %} class="active"{% endif %}><a href="{{ url_for('index') }}">Home</a></li>
-                    <li role="presentation"{% if index == 1 %} class="active"{% endif %}><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li role="presentation"{% if index == 1 %} class="active"{% endif %}><a href="{{ url_for('plates') }}">Plates</a></li>
+                    <li role="presentation"{% if index == 2 %} class="active"{% endif %}><a href="{{ url_for('meta_data') }}">Meta Data</a></li>
+                    <li role="presentation"{% if index == 3 %} class="active"{% endif %}><a href="{{ url_for('channels') }}">Channels</a></li>
+                    <li role="presentation"{% if index == 4 %} class="active"{% endif %}><a href="{{ url_for('streams') }}">Streams</a></li>
                 </ul>
             </div>
         </div>
     </div>
 
 {% endblock %}
-{##}
-{#{% block content %}#}
-{#{% endblock %}#}
+
+{% block content %}
+    {{ super() }}
+        <div class="container-fluid">
+        <div class="jumbotron alert alert-danger">
+            <h2>HyperStream Data Viewer and Visualisation Dashboard</h2>
+            <p>Issue tracker on <a href="https://github.com/IRC-SPHERE/HyperStreamViewer/issues">GitHub</a></p>
+       </div>
+    </div>
+
+{% endblock %}
 
 {% block scripts %}
     {{ super() }}

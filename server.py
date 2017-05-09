@@ -19,44 +19,23 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_bower import Bower
-from hyperstream import HyperStream
-import itertools
+from hyperstream import HyperStream, StreamId
+from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError
+from plotting import get_bokeh_plot
+
+from bokeh.util.string import encode_utf8
+
+from view_helpers import treelib_to_treeview, custom_sort
 
 
 hs = HyperStream()
-# a = 1
-
-
-def treelib_to_treeview(d):
-    root = []
-
-    def transform(node):
-        nodes = []
-        for item in node:
-            dd = dict(text="{}={}".format(item, node[item]['data']))
-            if 'children' in node[item]:
-                # dd['nodes'] = [dict(text='x', nodes=transform(child)) for child in node[item]['children']]
-                dd['nodes'] = list(itertools.chain(*[transform(child) for child in node[item]['children']]))
-            nodes.append(dd)
-        return nodes
-
-    for v in d['root']['children']:
-        root.append(dict(text="root", nodes=transform(v)))
-
-    return root
-
-    # if isinstance(d, collections.Mapping):
-    #     # return [{'text': k, 'nodes': [treelib_to_treeview(v['children'])]} for k, v in d.iteritems()]
-    #     return [{'text': k, 'nodes': [treelib_to_treeview(x) for x in v['children']] if 'children' in v else v['data']} for k, v in d.iteritems()]
-    # return d
-
-
 app = Flask(__name__)
 Bower(app)
 app.jinja_env.add_extension('jinja2.ext.do')
 app.jinja_env.filters['treelib_to_treeview'] = treelib_to_treeview
+app.jinja_env.filters['custom_sort'] = custom_sort
 
 
 @app.route("/")
@@ -64,9 +43,68 @@ def index():
     return render_template("index.html", hyperstream=hs)
 
 
-@app.route("/dashboard")
-def dashboard():
-    return render_template("dashboard.html")
+# @app.route("/dashboard")
+# def dashboard():
+#     return render_template("dashboard.html")
+
+@app.route("/plates")
+def plates():
+    return render_template("plates.html", hyperstream=hs)
+
+
+@app.route("/meta_data")
+def meta_data():
+    return render_template("meta_data.html", hyperstream=hs)
+
+
+@app.route("/channels")
+def channels():
+    return render_template("channels.html", hyperstream=hs)
+
+
+@app.route("/streams")
+def streams():
+    error = None
+    try:
+        d = dict(request.args.items())
+        channel = d.pop("channel")
+        stream = hs.channel_manager[channel].find_stream(**d)
+    except (MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError, KeyError) as e:
+        stream = None
+        error = e
+
+    return render_template("streams.html", hyperstream=hs, stream=stream, error=error)
+
+
+@app.route("/view")
+def view():
+    streams = hs.channel_manager.mongo.find_streams(**dict(request.args.items()))
+    # return render_template("view.html", streams=streams)
+    x = list(range(0, 100))
+
+    plot = get_bokeh_plot(title="Polynomial", x=x, y=list(map(lambda xx: xx ** 2, x)))
+
+    html = render_template(
+        'view.html',
+        **plot
+    )
+    return encode_utf8(html)
+
+
+@app.route("/polynomial")
+def polynomial():
+    """ Very simple embedding of a polynomial chart
+    """
+    # Create a polynomial line graph with those arguments
+    x = list(range(0, 100))
+
+    plot = get_bokeh_plot(title="Polynomial", x=x, y=list(map(lambda xx: xx ** 2, x)))
+
+    html = render_template(
+        'embed.html',
+        **plot
+    )
+    return encode_utf8(html)
 
 
 if __name__ == "__main__":
