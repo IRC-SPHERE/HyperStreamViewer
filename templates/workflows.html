@@ -14,19 +14,19 @@
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ loop.index }}">{{ worflow_id }}</a>
                         </h4>
-                        <p>{{ workflow.__class__.__name__ }}</p>
+                        <p>{{ workflow.description }}</p>
                         <p></p>
                     </div>
-                    <div id="collapse{{ loop.index }}" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <ul class="list-group">
-                            {% for stream_id in channel.streams.keys() %}
-                                {% set meta_data = dict(stream_id.meta_data) %}
-                                <li class="list-group-item"><a href="{{ url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) }}">{{ stream_id}}</a></li>
-                            {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
+{#                    <div id="collapse{{ loop.index }}" class="panel-collapse collapse">#}
+{#                        <div class="panel-body">#}
+{#                            <ul class="list-group">#}
+{#                            {% for stream_id in channel.streams.keys() %}#}
+{#                                {% set meta_data = dict(stream_id.meta_data) %}#}
+{#                                <li class="list-group-item"><a href="{{ url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) }}">{{ stream_id}}</a></li>#}
+{#                            {% endfor %}#}
+{#                            </ul>#}
+{#                        </div>#}
+{#                    </div>#}
                 </div>
                 {% endfor %}
             </div>
