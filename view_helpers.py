@@ -20,6 +20,10 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 from jinja2 import Undefined
 import itertools
+from pprint import PrettyPrinter
+
+
+pp = PrettyPrinter(indent=4)
 
 
 def custom_sort(iterable):
@@ -34,20 +38,9 @@ def custom_sort(iterable):
 def custom_format(value, template):
     if isinstance(value, (list, tuple)):
         return ''.join(map(lambda x: template.format(x), value))
+    if isinstance(value, dict):
+        return template.format(pp.pformat(value))
     return template.format(value)
-
-
-def custom_format_old(value):
-    header = '<table class="table table-bordered table-responsive"><tr>'
-    template = '<td class="col-md-1">{}</td>'
-    footer = '</tr></table>'
-
-    if isinstance(value, (list, tuple)):
-        content = ''.join(map(lambda x: template.format(x), value))
-    else:
-        content = template.format(value)
-
-    return header + content + footer
 
 
 def treelib_to_treeview(d):

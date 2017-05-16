@@ -37,6 +37,8 @@ app.jinja_env.add_extension('jinja2.ext.do')
 app.jinja_env.filters['treelib_to_treeview'] = treelib_to_treeview
 app.jinja_env.filters['custom_sort'] = custom_sort
 app.jinja_env.filters['custom_format'] = custom_format
+app.jinja_env.auto_reload = True
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 
 @app.route("/")
@@ -114,6 +116,4 @@ def polynomial():
 
 
 if __name__ == "__main__":
-    app.jinja_env.auto_reload = True
-    app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.run(host="0.0.0.0", port=5000, debug=True)
