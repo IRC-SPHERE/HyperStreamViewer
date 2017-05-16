@@ -27,7 +27,7 @@ from plotting import get_bokeh_plot
 
 from bokeh.util.string import encode_utf8
 
-from view_helpers import treelib_to_treeview, custom_sort
+from view_helpers import treelib_to_treeview, custom_sort, custom_format
 
 
 hs = HyperStream()
@@ -36,6 +36,7 @@ Bower(app)
 app.jinja_env.add_extension('jinja2.ext.do')
 app.jinja_env.filters['treelib_to_treeview'] = treelib_to_treeview
 app.jinja_env.filters['custom_sort'] = custom_sort
+app.jinja_env.filters['custom_format'] = custom_format
 
 
 @app.route("/")
@@ -74,6 +75,11 @@ def streams():
         error = e
 
     return render_template("streams.html", hyperstream=hs, stream=stream, error=error)
+
+
+@app.route("/workflows")
+def workflows():
+    return render_template("workflows.html", hyperstream=hs)
 
 
 @app.route("/view")

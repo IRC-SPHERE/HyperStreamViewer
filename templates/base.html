@@ -17,7 +17,7 @@
 
 {% block navbar %}
      {% set page_index = {'_': 0} %}
-     {% for page in ['plates', 'meta_data', 'channels', 'streams'] %}
+     {% for page in ['plates', 'meta_data', 'channels', 'streams', 'workflows'] %}
         {% if page in request.base_url %}
             {% do page_index.update({'_': loop.index}) %}
         {% endif %}
@@ -45,6 +45,7 @@
                     <li role="presentation"{% if index == 2 %} class="active"{% endif %}><a href="{{ url_for('meta_data') }}">Meta Data</a></li>
                     <li role="presentation"{% if index == 3 %} class="active"{% endif %}><a href="{{ url_for('channels') }}">Channels</a></li>
                     <li role="presentation"{% if index == 4 %} class="active"{% endif %}><a href="{{ url_for('streams') }}">Streams</a></li>
+                    <li role="presentation"{% if index == 5 %} class="active"{% endif %}><a href="{{ url_for('workflows') }}">Workflows</a></li>
                 </ul>
             </div>
         </div>
