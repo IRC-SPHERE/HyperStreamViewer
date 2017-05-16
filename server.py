@@ -62,7 +62,13 @@ def meta_data():
 
 @app.route("/channels")
 def channels():
-    return render_template("channels.html", hyperstream=hs)
+    channel_details = dict()
+
+    for channel_id, channel in sorted(hs.channel_manager.items()):
+        s = sorted([(stream_id, str(stream_id)) for stream_id in channel.streams.keys()], key=lambda x: x[1])
+        channel_details[channel] = [x[0] for x in s]
+
+    return render_template("channels.html", hyperstream=hs, channels=channel_details)
 
 
 @app.route("/streams")

@@ -6,7 +6,9 @@
         <div class="col-lg-12">
 
             <div id="accordion" class="panel-group">
-                {% for channel_id, channel in hyperstream.channel_manager.items() %}
+{#                {% for channel_id, channel in hyperstream.channel_manager.items() | sort %}#}
+                {% for channel in channels | sort(attribute='channel_id') | sort(attribute='__class__.__name__') %}
+                    {% set channel_id = channel.channel_id %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -18,7 +20,8 @@
                     <div id="collapse{{ loop.index }}" class="panel-collapse collapse">
                         <div class="panel-body">
                             <ul class="list-group">
-                            {% for stream_id in channel.streams.keys() | sort(attribute='name') %}
+{#                            {% for stream_id in channel.streams.keys() | sort(attribute='name') %}#}
+                            {% for stream_id in channels[channel] %}
                                 {% set meta_data = dict(stream_id.meta_data) %}
                                 <li class="list-group-item"><a href="{{ url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) }}">{{ stream_id}}</a></li>
                             {% endfor %}
