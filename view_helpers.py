@@ -39,7 +39,7 @@ def custom_format(value, template):
     if isinstance(value, (list, tuple)):
         return ''.join(map(lambda x: template.format(x), value))
     if isinstance(value, dict):
-        return template.format(pp.pformat(value))
+        return template.format('<pre>' + pp.pformat(value) + '</pre>')
     return template.format(value)
 
 
