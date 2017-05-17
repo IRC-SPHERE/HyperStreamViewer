@@ -4,12 +4,6 @@
     {{ super() }}
     <div class="container-fluid">
         <div class="col-lg-12">
-            {% if error %}
-                <h4>{{ error.__class__.__name__ }}</h4>
-                {% if error.message %}
-                    <p>{{ error.message }}</p>
-                {% endif %}
-            {% endif %}
             {% if stream %}
                   <h4>Stream:</h4>
                   <div class="list-group">
@@ -42,7 +36,16 @@
                   </div>
 
                  {% include "stream_view.html" %}
+            {% else %}
+                <p>No streams found.</p>
             {% endif %}
+            {% if error %}
+                <h4>{{ error.__class__.__name__ }}</h4>
+                {% if error.message %}
+                    <p>{{ error.message }}</p>
+                {% endif %}
+            {% endif %}
+
         </div>
     </div>
 {% endblock %}

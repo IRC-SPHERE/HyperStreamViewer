@@ -79,7 +79,9 @@ def streams():
         d = dict(request.args.items())
         channel = d.pop("channel")
         stream = hs.channel_manager[channel].find_stream(**d)
-    except (MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError, KeyError) as e:
+    except KeyError:
+        stream = None
+    except (MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError) as e:
         stream = None
         error = e
 
@@ -104,6 +106,7 @@ def factors():
 @app.route("/tools")
 def tools():
     error = None
+    tool = None
     try:
         name = request.args['tool']
         import json
@@ -114,8 +117,9 @@ def tools():
             # Tools don't expect empty lists
             parameters = None
         tool = hs.channel_manager.get_tool(name=name, parameters=parameters)
-    except (KeyError, ToolInitialisationError) as e:
-        tool = None
+    except KeyError:
+        pass
+    except ToolInitialisationError as e:
         error = e
 
     return render_template("tools.html", hyperstream=hs, tool=tool, error=error)
