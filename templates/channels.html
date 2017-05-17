@@ -17,13 +17,20 @@
                         <p>{{ channel.__class__.__name__ }}</p>
                         <p></p>
                     </div>
+                    {% if loop.index == 6 %}
+                    <div id="collapse{{ loop.index }}" class="panel-collapse">
+                    {% else %}
                     <div id="collapse{{ loop.index }}" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <ul class="list-group">
+                    {% endif %}
+                        <div class="panel-body" id="stream-list-{{ channel_id }}">
+                            <div class="row"><div class="col-sm-3">
+                                <input class="search form-control" placeholder="Search"  type="text" /><br/>
+                            </div></div>
+                            <ul class="list">
 {#                            {% for stream_id in channel.streams.keys() | sort(attribute='name') %}#}
                             {% for stream_id in channels[channel] %}
                                 {% set meta_data = dict(stream_id.meta_data) %}
-                                <li class="list-group-item"><a href="{{ url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) }}">{{ stream_id}}</a></li>
+                                <li><a class="stream-id-{{ stream_id }}" href="{{ url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) }}">{{ stream_id}}</a></li>
                             {% endfor %}
                             </ul>
                         </div>
@@ -33,4 +40,21 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ url_for('bower.static', filename='list.js/dist/list.js') }}"></script>
+    {% for channel in channels %}
+    <script type="text/javascript">
+        var options = {
+            valueNames: [
+                {% for stream_id in channels[channel] %}
+                'stream-id-{{ stream_id }}',
+                {% endfor %}
+                    ]
+            };
+        var streamList = new List('stream-list-{{ channel.channel_id }}', options);
+    </script>
+    {% endfor %}
 {% endblock %}
