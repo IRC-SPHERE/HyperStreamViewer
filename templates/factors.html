@@ -16,12 +16,14 @@
                         </h4>
                         <p>{{ workflow.description }}</p>
                     </div>
-                    <div id="collapse{{ loop.index }}" class="panel-collapse collapse">
+{#                    <div id="collapse{{ loop.index }}" class="panel-collapse collapse">#}
+                    <div id="collapse{{ loop.index }}" class="panel-collapse">
                         <div class="panel-body">
                             <p>Owner: {{ workflow.owner }}</p>
                             <p>Nodes:
                             <ul class="list-group">
-                            {% for name in workflow.nodes.keys() | sort %}
+                            {% for name in workflow.nodes.keys() %}
+{#                                <li class="list-group-item"><a href="{{ url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) }}">{{ stream_id}}</a></li>#}
                                 <li class="list-group-item">{{ name }}</li>
                             {% endfor %}
                             </ul>
@@ -29,9 +31,14 @@
 
                             <p>Factors:
                             <ul class="list-group">
-                            {% for factor in workflow.factors | sort(attribute='factor_id') %}
+                            {% for factor in workflow.factors %}
                                 <li class="list-group-item">
-                                    {% include "factor.html" %}
+                                    {{ factor }}
+                                    <ul class="list-group">
+                                        <li class="list-group-item">{{ factor.__class__.__name__ }}</li>
+                                        <li class="list-group-item">{{ factor.plates }}</li>
+                                        <li class="list-group-item">{{ factor.tool }}</li>
+                                    </ul>
                                 </li>
                             {% endfor %}
                             </ul>

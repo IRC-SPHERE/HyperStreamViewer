@@ -17,7 +17,8 @@
 
 {% block navbar %}
      {% set page_index = {'_': 0} %}
-     {% for page in ['plates', 'meta_data', 'channels', 'streams', 'workflows'] %}
+     {% set pages = ['plates', 'meta_data', 'channels', 'streams', 'workflows', 'factors', 'tools'] %}
+     {% for page in pages %}
         {% if page in request.base_url %}
             {% do page_index.update({'_': loop.index}) %}
         {% endif %}
@@ -41,11 +42,9 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-left">
                     <li role="presentation"{% if index == 0 %} class="active"{% endif %}><a href="{{ url_for('index') }}">Home</a></li>
-                    <li role="presentation"{% if index == 1 %} class="active"{% endif %}><a href="{{ url_for('plates') }}">Plates</a></li>
-                    <li role="presentation"{% if index == 2 %} class="active"{% endif %}><a href="{{ url_for('meta_data') }}">Meta Data</a></li>
-                    <li role="presentation"{% if index == 3 %} class="active"{% endif %}><a href="{{ url_for('channels') }}">Channels</a></li>
-                    <li role="presentation"{% if index == 4 %} class="active"{% endif %}><a href="{{ url_for('streams') }}">Streams</a></li>
-                    <li role="presentation"{% if index == 5 %} class="active"{% endif %}><a href="{{ url_for('workflows') }}">Workflows</a></li>
+                    {% for page in pages %}
+                        <li role="presentation"{% if index == loop.index %} class="active"{% endif %}><a href="{{ url_for(page) }}">{{ page | title | replace('_', ' ') }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
@@ -59,6 +58,8 @@
         <div class="jumbotron alert alert-danger">
             <h2>HyperStream Data Viewer and Visualisation Dashboard</h2>
             <p>Issue tracker on <a href="https://github.com/IRC-SPHERE/HyperStreamViewer/issues">GitHub</a></p>
+            <p>Connected to mongodb://{{ hyperstream.config.mongo.host }}:{{ hyperstream.config.mongo.port }}/{{ hyperstream.config.mongo.db }}</p>
+            <p>Plugin paths: [{{ hyperstream.config.plugins | map(attribute='path') | join(', ') }}]</p>
        </div>
     </div>
 

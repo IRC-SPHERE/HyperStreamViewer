@@ -21,8 +21,9 @@
 
 from flask import Flask, render_template, request
 from flask_bower import Bower
-from hyperstream import HyperStream, StreamId
-from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError
+from hyperstream import HyperStream, Tool
+from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError, \
+    ToolInitialisationError
 from plotting import get_bokeh_plot
 
 from bokeh.util.string import encode_utf8
@@ -83,6 +84,41 @@ def streams():
         error = e
 
     return render_template("streams.html", hyperstream=hs, stream=stream, error=error)
+
+
+@app.route("/factors")
+def factors():
+    error = None
+    try:
+        factor_id = request.args['factor_id']
+        workflow_id = request.args['workflow_id']
+        workflow = hs.workflow_manager.workflows[workflow_id]
+        factor = [x for x in workflow.factors if x.factor_id == factor_id][0]
+    except KeyError as e:
+        factor = None
+        error = e
+
+    return render_template("factors.html", hyperstream=hs, factor=factor, error=error)
+
+
+@app.route("/tools")
+def tools():
+    error = None
+    try:
+        name = request.args['tool']
+        import json
+        parameters = json.loads(request.args['parameters'])
+        if parameters:
+            parameters = Tool.parameters_from_model(Tool.parameters_from_dicts(parameters))
+        else:
+            # Tools don't expect empty lists
+            parameters = None
+        tool = hs.channel_manager.get_tool(name=name, parameters=parameters)
+    except (KeyError, ToolInitialisationError) as e:
+        tool = None
+        error = e
+
+    return render_template("tools.html", hyperstream=hs, tool=tool, error=error)
 
 
 @app.route("/workflows")

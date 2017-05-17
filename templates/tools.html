@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {{ super() }}
+    <div class="container-fluid">
+        <div class="col-lg-12">
+            {% if error %}
+                <h4>{{ error.__class__.__name__ }}</h4>
+                {% if error.message %}
+                    <p>{{ error.message }}</p>
+                {% endif %}
+            {% endif %}
+            {% if tool %}
+                 {% include("tool.html") %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

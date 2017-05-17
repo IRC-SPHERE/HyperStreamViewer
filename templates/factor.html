@@ -1,0 +1,7 @@
+Tool: <a href="{{ url_for('tools', tool=factor.tool.name, parameters=factor.tool.parameters | tojson) }}">{{ factor.tool.__class__.__name__ }}</a><br/>
+{% if factor.sources %}Sources: [{{ factor.sources | map(attribute='node_id') | join(', ') }}]<br/>{% endif %}
+{% if factor.source %}Source: [{{ factor.source.node_id }}]<br/>{% endif %}
+{% if factor.sinks %}Sinks: [{{ factor.sources | map(attribute='node_id') | join(', ') }}]<br/>{% endif %}
+{% if factor.sink %}Sink: [{{ factor.sink.node_id }}]<br/>{% endif %}
+{% if factor.alignment_node %}Alignment node: [{{ factor.alignment_node.node_id }}]<br/>{% endif %}
+{% if factor.splitting_node %}Splitting node: [{{ factor.splitting_node.node_id }}]<br/>{% endif %}

@@ -1,0 +1,21 @@
+                  <div class="panel">
+                    <div class="panel-body">
+                        <h4>Tool</h4>
+                        <p>Name: {{ tool.name }}</p>
+                        <p>Parameters:
+                        {% if tool.parameters %}
+                        </p><br/>
+                            <table class="table table-bordered table-responsive">
+                                <tr><th>Key</th><th>Value</th></tr>
+                            {% for p in tool.parameters %}
+                                <tr>
+                                    <td>{{ p.key }}</td>
+                                    <td>{% if p.is_function %}{{ tool | attr(p.key) }}{% else %}{{ p.value }}{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                            </table>
+                        {% else %}
+                            None</p>
+                        {% endif %}
+                    </div>
+                  </div>
