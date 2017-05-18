@@ -21,7 +21,8 @@
 from jinja2 import Undefined
 import itertools
 from pprint import PrettyPrinter
-
+from werkzeug.routing import BaseConverter
+from datetime import datetime
 
 pp = PrettyPrinter(indent=4)
 
@@ -66,3 +67,29 @@ def treelib_to_treeview(d):
         root.append(dict(text="root", nodes=transform(v)))
 
     return root
+
+
+class ListConverter(BaseConverter):
+    def to_python(self, value):
+        return value.split('+')
+
+    def to_url(self, values):
+        return '+'.join(super(ListConverter, self).to_url(value) for value in values)
+
+
+class DictConverter(BaseConverter):
+    def to_python(self, value):
+        items = value.split('+')
+        return dict(x.split("=") for x in items)
+
+    def to_url(self, values):
+        return '+'.join(super(DictConverter, self).to_url("{}={}".format(k, v)) for k, v in values.items())
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, datetime):
+        serial = obj.isoformat()
+        return serial
+    raise TypeError("Type not serializable")

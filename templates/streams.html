@@ -5,36 +5,17 @@
     <div class="container-fluid">
         <div class="col-lg-12">
             {% if stream %}
-                  <h4>Stream:</h4>
-                  <div class="list-group">
-                    <a href="#" class="list-group-item">
-                      <h4 class="list-group-item-heading">Name</h4>
-                      <p class="list-group-item-text">{{ stream.stream_id.name }}</p>
-                    </a>
-                    <a href="#" class="list-group-item">
-                      <h4 class="list-group-item-heading">Meta data</h4>
-                      <p class="list-group-item-text">{% for v in stream.stream_id.meta_data %}
-                                    {{ v[0] }}=<strong>{{ v[1] }}</strong>{{ "," if not loop.last }}&nbsp;&nbsp;
-                                {% endfor %}</p>
-                    </a>
-                    <a href="#" class="list-group-item">
-                      <h4 class="list-group-item-heading">Channel</h4>
-                      <p class="list-group-item-text">{{ stream.channel.__class__.__name__ }}: <strong>{{ stream.channel.channel_id }}</strong></p>
-                    </a>
-                    <a href="#" class="list-group-item">
-                      <h4 class="list-group-item-heading">Calculated intervals</h4>
-                      <p class="list-group-item-text">{{ stream.calculated_intervals }}</p>
-                    </a>
-                    <a href="#" class="list-group-item">
-                      <h4 class="list-group-item-heading">Last item</h4>
-                        {% if stream.calculated_intervals %}
-                        <p class="list-group-item-text">{{ stream.window().last() }}</p>
-                        {% else %}
-                        <p class="list-group-item-text">No calculations have been performed.</p>
-                        {% endif %}
-                    </a>
-                  </div>
-
+                 <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">{{ stream.stream_id.name }}</h4>
+                        </div>
+                        <div class="panel-body">
+                            <p><strong>Meta data: </strong>{% for v in stream.stream_id.meta_data %}{{ v[0] }}=<strong>{{ v[1] }}</strong>{{ "," if not loop.last }}&nbsp{% endfor %}</p>
+                            <p><strong>Channel: </strong>{{ stream.channel.__class__.__name__ }}: "{{ stream.channel.channel_id }}"</p>
+                            <p><strong>Calculated intervals: </strong>{{ stream.calculated_intervals | map('string') | list | join(', ') }}</p>
+                            <p><strong>Last item: </strong>{% if stream.calculated_intervals %}<br/>&emsp;Timestamp: {{ stream.window().last().timestamp }}<br/>&emsp;Value: {{ stream.window().last().value }}{% else %}No calculations have been performed.{% endif %}</p>
+                        </div>
+                    </div>
                  {% include "stream_view.html" %}
             {% else %}
                 <p>No streams found.</p>
@@ -45,7 +26,6 @@
                     <p>{{ error.message }}</p>
                 {% endif %}
             {% endif %}
-
         </div>
     </div>
 {% endblock %}

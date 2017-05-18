@@ -9,8 +9,20 @@
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('.static', filename='data_viewer.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ url_for('bower.static', filename='bootstrap/dist/css/bootstrap.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ url_for('bower.static', filename='keen-dashboards/dist/keen-dashboards.css') }}" />
+{#    <link rel="stylesheet" type="text/css" href="{{ url_for('bower.static', filename='bootstrap/dist/css/bootstrap.css') }}" />#}
+{#    <link rel="stylesheet" type="text/css" href="{{ url_for('bower.static', filename='keen-dashboards/dist/keen-dashboards.css') }}" />#}
+    <style>
+    .navbar-brand {
+        padding: 0;
+    }
+
+    .navbar-brand>img {
+        height: 100%;
+        padding: 5px;
+        width: auto;
+        filter: invert(100%);
+    }
+    </style>
 {% endblock %}
 
 {% block body_attribs %} class="application" {% endblock body_attribs %}
@@ -29,20 +41,18 @@
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
                 </button>
-{#                <a class="navbar-brand" href="../">#}
-{#                    <span class="glyphicon glyphicon-chevron-left"></span>#}
-{#                </a>#}
-                <a class="navbar-brand" href="./">HyperStream Viewer</a>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <div class="navbar-left icon"></div>
+                <a class="navbar-brand" href="./"><img src="{{ url_for('.static', filename='hyperstream.svg') }}" alt="HyperStream Viewer"></a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-left">
-                    <li role="presentation"{% if index == 0 %} class="active"{% endif %}><a href="{{ url_for('index') }}">Home</a></li>
+                    <li role="presentation"{% if index == 0 %} class="active"{% endif %}><a href="{{ url_for('index') }}">HyperStream</a></li>
                     {% for page in pages %}
                         <li role="presentation"{% if index == loop.index %} class="active"{% endif %}><a href="{{ url_for(page) }}">{{ page | title | replace('_', ' ') }}</a></li>
                     {% endfor %}
@@ -68,8 +78,8 @@
 
 {% block scripts %}
     {{ super() }}
-    <script type="text/javascript" src="{{ url_for('bower.static', filename='keen-js/dist/keen.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('.static', filename='meta.js') }}"></script>
+{#    <script type="text/javascript" src="{{ url_for('bower.static', filename='keen-js/dist/keen.min.js') }}"></script>#}
+{#    <script type="text/javascript" src="{{ url_for('.static', filename='meta.js') }}"></script>#}
     <script type="text/javascript" src="{{ url_for('bower.static', filename='bootstrap-treeview/dist/bootstrap-treeview.min.js') }}"></script>
     {#  <script type="text/javascript" src="{{ url_for('bower.static', filename='keen-dashboards/dist/keen-dashboards.js') }}"></script>#}
 

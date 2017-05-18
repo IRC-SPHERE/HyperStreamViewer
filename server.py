@@ -18,8 +18,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
-
-from flask import Flask, render_template, request
+import json
+from flask import Flask, render_template, request, abort, jsonify, Response
 from flask_bower import Bower
 from hyperstream import HyperStream, Tool
 from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError, \
@@ -28,12 +28,14 @@ from plotting import get_bokeh_plot
 
 from bokeh.util.string import encode_utf8
 
-from view_helpers import treelib_to_treeview, custom_sort, custom_format
+from view_helpers import treelib_to_treeview, custom_sort, custom_format, ListConverter, DictConverter, json_serial
 
 
 hs = HyperStream()
 app = Flask(__name__)
 Bower(app)
+app.url_map.converters['list'] = ListConverter
+app.url_map.converters['dict'] = DictConverter
 app.jinja_env.add_extension('jinja2.ext.do')
 app.jinja_env.filters['treelib_to_treeview'] = treelib_to_treeview
 app.jinja_env.filters['custom_sort'] = custom_sort
@@ -63,13 +65,16 @@ def meta_data():
 
 @app.route("/channels")
 def channels():
-    channel_details = dict()
-
-    for channel_id, channel in sorted(hs.channel_manager.items()):
+    if 'channel_id' in request.args:
+        channel_id = request.args['channel_id']
+        channel = hs.channel_manager[channel_id]
         s = sorted([(stream_id, str(stream_id)) for stream_id in channel.streams.keys()], key=lambda x: x[1])
-        channel_details[channel] = [x[0] for x in s]
+        channel_streams = [x[0] for x in s]
+    else:
+        channel_id = None
+        channel_streams = None
 
-    return render_template("channels.html", hyperstream=hs, channels=channel_details)
+    return render_template("channels.html", hyperstream=hs, channel_id=channel_id, channel_streams=channel_streams)
 
 
 @app.route("/streams")
@@ -86,6 +91,17 @@ def streams():
         error = e
 
     return render_template("streams.html", hyperstream=hs, stream=stream, error=error)
+
+
+@app.route("/stream/<channel>/<name>/<dict:meta_data>/data.json")
+def stream(channel, name, meta_data):
+    try:
+        stream = hs.channel_manager[channel].find_stream(name=name, **meta_data)
+        data = stream.window().last(50)
+    except (KeyError, TypeError, MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError) as e:
+        return jsonify({'exception': str(type(e)), 'message': e.message})
+
+    return Response(json.dumps(data, default=json_serial), mimetype="application/json")
 
 
 @app.route("/factors")

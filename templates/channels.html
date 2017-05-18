@@ -1,60 +1,181 @@
 {% extends "base.html" %}
 
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('bower.static', filename='clusterize/clusterize.css') }}" />
+    <style>
+    .table-sm tr, th, td {
+        height : 15px;
+        font-size: small;
+        margin: 0 0 0 0;
+    }
+    </style>
+{% endblock %}
+
 {% block content %}
     {{ super() }}
     <div class="container-fluid">
-        <div class="col-lg-12">
-
-            <div id="accordion" class="panel-group">
-{#                {% for channel_id, channel in hyperstream.channel_manager.items() | sort %}#}
-                {% for channel in channels | sort(attribute='channel_id') | sort(attribute='__class__.__name__') %}
-                    {% set channel_id = channel.channel_id %}
+            {% if channel_id %}
+                {% set channel = hyperstream.channel_manager[channel_id] %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ loop.index }}">{{ channel_id }}</a>
+                            {{ channel_id }}
                         </h4>
                         <p>{{ channel.__class__.__name__ }}</p>
                         <p></p>
                     </div>
-                    {% if loop.index == 6 %}
-                    <div id="collapse{{ loop.index }}" class="panel-collapse">
-                    {% else %}
-                    <div id="collapse{{ loop.index }}" class="panel-collapse collapse">
-                    {% endif %}
-                        <div class="panel-body" id="stream-list-{{ channel_id }}">
-                            <div class="row"><div class="col-sm-3">
-                                <input class="search form-control" placeholder="Search"  type="text" /><br/>
-                            </div></div>
-                            <ul class="list">
-{#                            {% for stream_id in channel.streams.keys() | sort(attribute='name') %}#}
-                            {% for stream_id in channels[channel] %}
-                                {% set meta_data = dict(stream_id.meta_data) %}
-                                <li><a class="stream-id-{{ stream_id }}" href="{{ url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) }}">{{ stream_id}}</a></li>
-                            {% endfor %}
-                            </ul>
+                    <div class="panel">
+                        <div class="panel-body clusterize table-sm" id="stream-list">
+{#                            <div class="row"><div class="col-sm-3">#}
+{#                                <input class="search form-control" placeholder="Search"  type="text" id="search" /><br/>#}
+{#                            </div></div>#}
+
+                            <!--LIST SCROLLING HERE -->
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th class="col-sm-8">Stream ID</th>
+                                        <th class="col-sm-4">Calculated Intervals</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            <div id="scrollArea" class="clusterize-scroll">
+                                <table>
+                                    <tbody id="contentArea" class="clusterize-content">
+                                    {% for stream_id in channel_streams %}
+                                    {% set meta_data = dict(stream_id.meta_data) %}
+                                    {% set href = url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) %}
+                                    <tr>
+                                        <td><a class="col-sm-8 stream-id-{{ stream_id | replace(' ', '-') }}" href="{{ href }}">
+                                            {{ stream_id}}
+                                        </a></td>
+                                        {% set intervals = channel.streams[stream_id].calculated_intervals %}
+                                        {% if intervals %}
+                                        <td class="col-sm-4">{{ intervals | map('string') | list }}</td>
+                                        {% else %}
+                                        <td class="col-sm-4"></td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+{#                                <ul id="contentArea" class="clusterize-content">#}
+{#                                    <li class="clusterize-no-data">Loading data…</li>#}
+{#                                    {% for stream_id in channel_streams %}#}
+{#                                    {% set meta_data = dict(stream_id.meta_data) %}#}
+{#                                    <li class="col-xs-12">#}
+{#                                        <a class="stream-id-{{ stream_id | replace(' ', '-') }}" href="{{ url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) }}">#}
+{#                                            {{ stream_id}}#}
+{#                                        </a>#}
+{#                                    </li>#}
+{#                                    {% endfor %}#}
+{#                              </ul>#}
+                            </div>
+
+                            <!------------------------->
+
+{#                            <ul class="list row">#}
+{#                            {% for stream_id in channel_streams %}#}
+{#                                {% set meta_data = dict(stream_id.meta_data) %}#}
+{#                                <li class="col-xs-12"><a class="stream-id-{{ stream_id | replace(' ', '-') }}" href="{{ url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) }}">{{ stream_id}}</a></li>#}
+{#                            {% endfor %}#}
+{#                            </ul>#}
+{#                            <ul class="pagination"></ul>#}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                {% for channel in hyperstream.channel_manager.values() | sort(attribute='channel_id') | sort(attribute='__class__.__name__') %}
+                <div class="col-lg-3">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a href="{{ url_for('channels', channel_id=channel.channel_id) }}">{{ channel.channel_id }}</a>
+                            </h4>
+                        </div>
+                        <div class="panel-body">
+                            <p><strong>Type: </strong>{{ channel.__class__.__name__ }}</p>
+                            <p><strong>Number of streams:</strong> {{ channel.streams | length }}</p>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
-            </div>
+            {% endif %}
         </div>
-    </div>
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
-    <script type="text/javascript" src="{{ url_for('bower.static', filename='list.js/dist/list.js') }}"></script>
-    {% for channel in channels %}
+{#    <script type="text/javascript" src="{{ url_for('bower.static', filename='list.js/dist/list.js') }}"></script>#}
+    <script type="text/javascript" src="{{ url_for('bower.static', filename='clusterize/clusterize.js') }}"></script>
+
+    {% if channel_streams %}
     <script type="text/javascript">
-        var options = {
-            valueNames: [
-                {% for stream_id in channels[channel] %}
-                'stream-id-{{ stream_id }}',
-                {% endfor %}
-                    ]
-            };
-        var streamList = new List('stream-list-{{ channel.channel_id }}', options);
+{#    var rows = [];#}
+{#    var search = document.getElementById('search');#}
+{##}
+{#/* Fill array with data#}
+{# *#}
+{# * Fields:#}
+{# * values *array* - value of each field (in case use of table)#}
+{# * markup *string* - markup that will be added to the DOM#}
+{# * active *bool* - specifies if row is suitable by search phrase#}
+{#*/#}
+{#{% for stream_id in channel_streams %}#}
+{#    {% set meta_data = dict(stream_id.meta_data) %}#}
+{#    {% set href = url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) %}#}
+{#    rows.push({#}
+{#        values: '{{ stream_id }}',#}
+{#        markup: '<li><a href="{{ href }}">{{ stream_id }}</a></li>',#}
+{#        active: true#}
+{#    });#}
+{#{% endfor %}#}
+{##}
+{#/*#}
+{#* Fetch suitable rows#}
+{#*/#}
+{#var filterRows = function(rows) {#}
+{#  var results = [];#}
+{#  for(var i = 0, ii = rows.length; i < ii; i++) {#}
+{#    if(rows[i].active) results.push(rows[i].markup)#}
+{#  }#}
+{#  return results};#}
+{##}
+/*
+* Init clusterize.js
+*/
+var clusterize = new Clusterize({
+    //rows: filterRows(rows),
+    scrollId: 'scrollArea',
+    contentId: 'contentArea'
+});
+
+{#/*#}
+{#* Multi-column search#}
+{#*/#}
+{#var onSearch = function() {#}
+{#  for(var i = 0, ii = rows.length; i < ii; i++) {#}
+{#    var suitable = false;#}
+{#    for(var j = 0, jj = rows[i].values.length; j < jj; j++) {#}
+{#      if(rows[i].values[j].toString().indexOf(search.value) + 1)#}
+{#        suitable = true;#}
+{#    }#}
+{#    rows[i].active = suitable;#}
+{#  }#}
+{#  clusterize.update(filterRows(rows));};#}
+{#search.oninput = onSearch;#}
+{##}
+{#        var options = {#}
+{#            valueNames: [#}
+{#                {% for stream_id in channel_streams %}#}
+{#                'stream-id-{{ stream_id | replace(' ', '-') }}'{% if not loop.last %},{% endif %}#}
+{#                {% endfor %}#}
+{#                    ],#}
+{#            pagination: true,#}
+{#            page: 20#}
+{#            };#}
+{#        var streamList = new List('stream-list', options);#}
     </script>
-    {% endfor %}
+    {% endif %}
 {% endblock %}

@@ -1,21 +1,26 @@
-<div class="container container-fluid">
+<h4>Stream View</h4>
 
-    {% if stream.calculated_intervals %}
-        <table class="table table-bordered table-condensed table-inverse">
-        <tr><th class="col-md-2">Timestamp</th><th class="col-md-10" colspan="10">Value</th></tr>
+{#<ul class="nav nav-tabs">#}
+{#  <li role="presentation" class="active"><a href="#">Tabular</a></li>#}
+{#  <li role="presentation"><a href="#">Raw</a></li>#}
+{#  <li role="presentation"><a href="#">Plot</a></li>#}
+{#</ul>#}
 
-        {% for item in stream.window().tail(50) %}
-            <tr>
-                <td class="col-md-2">{{ item.timestamp }}</td>
-                <td class="col-md-10">
-                    <table class="table table-bordered table-condensed">
-                        <tr>
-                            {{ item.value | custom_format('<td class="col-md-1">{}</td>') | safe  }}
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        {% endfor %}
-        </table>
-    {% endif %}
-</div>
+{% if stream.calculated_intervals %}
+    <table class="table table-bordered table-condensed table-inverse">
+    <tr><th class="col-md-2">Timestamp</th><th class="col-md-10" colspan="10">Value</th></tr>
+
+    {% for item in stream.window().tail(50) %}
+        <tr>
+            <td class="col-md-2">{{ item.timestamp }}</td>
+            <td class="col-md-10">
+                <table class="table table-bordered table-condensed">
+                    <tr>
+                        {{ item.value | custom_format('<td class="col-md-1">{}</td>') | safe  }}
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endif %}
