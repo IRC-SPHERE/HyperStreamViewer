@@ -18,11 +18,20 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
+from flask import Response, make_response
 from jinja2 import Undefined
 import itertools
 from pprint import PrettyPrinter
 from werkzeug.routing import BaseConverter
 from datetime import datetime
+import simplejson as json
+from StringIO import StringIO
+import csv
+import xml.etree.ElementTree as ET
+import ciso8601
+
+from hyperstream.utils import UTC, MIN_DATE, utcnow, MAX_DATE
+
 
 pp = PrettyPrinter(indent=4)
 
@@ -77,6 +86,15 @@ class ListConverter(BaseConverter):
         return '+'.join(super(ListConverter, self).to_url(value) for value in values)
 
 
+class ParameterListConverter(BaseConverter):
+    def to_python(self, value):
+        items = value.split('+')
+        return [x.split(":") for x in items]
+
+    def to_url(self, values):
+        return '+'.join(super(ParameterListConverter, self).to_url("{}:{}".format(*value)) for value in values)
+
+
 class DictConverter(BaseConverter):
     def to_python(self, value):
         items = value.split('+')
@@ -86,10 +104,67 @@ class DictConverter(BaseConverter):
         return '+'.join(super(DictConverter, self).to_url("{}={}".format(k, v)) for k, v in values.items())
 
 
+class DatetimeConverter(BaseConverter):
+    def to_python(self, value):
+        if value.upper() in ('0', 'MIN_DATE', 'MIN', '0-0-0'):
+            dt = MIN_DATE
+        elif value.upper() == 'NOW':
+            dt = utcnow()
+        elif value.upper() in ('MAX_DATE', 'MAX'):
+            dt = MAX_DATE
+        else:
+            dt = ciso8601.parse_datetime(value)
+
+        if dt is None:
+            raise ValueError("{} not parsed".format(value))
+
+        return dt.replace(tzinfo=UTC)
+
+    def to_url(self, value):
+        return value.isoformat()
+
+
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code"""
 
     if isinstance(obj, datetime):
         serial = obj.isoformat()
         return serial
-    raise TypeError("Type not serializable")
+
+    raise TypeError("Type {} not serializable".format(str(type(obj))))
+
+
+def json_response(data):
+    return Response(json.dumps(data, default=json_serial, iterable_as_array=True), mimetype="application/json")
+
+
+def csv_response(data):
+    si = StringIO()
+    cw = csv.writer(si)
+    cw.writerows(data)
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
+
+
+def xml_response(data):
+    # root = ET.element('root')  # name the root whatever you want
+    # add your data to the root node in the format you want
+    # return app.response_class(ET.dump(root), mimetype='application/xml')
+    raise TypeError("XML not yet supported")
+
+
+ENDPOINTS = {
+    "json": json_response,
+    "csv": csv_response,
+    "xml": xml_response
+}
+
+
+KNOWN_TYPES = {
+    'int': int,
+    'float': float,
+    'str': str,
+    'bool': bool
+}

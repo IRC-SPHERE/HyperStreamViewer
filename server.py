@@ -18,24 +18,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
-import json
-from flask import Flask, render_template, request, abort, jsonify, Response
+from flask import Flask, render_template, request, jsonify
 from flask_bower import Bower
-from hyperstream import HyperStream, Tool
-from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError, \
-    ToolInitialisationError
 from plotting import get_bokeh_plot
 
 from bokeh.util.string import encode_utf8
 
-from view_helpers import treelib_to_treeview, custom_sort, custom_format, ListConverter, DictConverter, json_serial
+from view_helpers import treelib_to_treeview, custom_sort, custom_format, ListConverter, DictConverter, \
+    ParameterListConverter, DatetimeConverter, ENDPOINTS, KNOWN_TYPES
+
+from hyperstream import HyperStream, Tool, TimeInterval
+from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError, \
+    ToolInitialisationError
 
 
 hs = HyperStream()
 app = Flask(__name__)
 Bower(app)
 app.url_map.converters['list'] = ListConverter
+app.url_map.converters['params_list'] = ParameterListConverter
 app.url_map.converters['dict'] = DictConverter
+app.url_map.converters['datetime'] = DatetimeConverter
 app.jinja_env.add_extension('jinja2.ext.do')
 app.jinja_env.filters['treelib_to_treeview'] = treelib_to_treeview
 app.jinja_env.filters['custom_sort'] = custom_sort
@@ -93,15 +96,44 @@ def streams():
     return render_template("streams.html", hyperstream=hs, stream=stream, error=error)
 
 
-@app.route("/stream/<channel>/<name>/<dict:meta_data>/data.json")
-def stream(channel, name, meta_data):
+@app.route("/stream/<channel>/<name>/<dict:meta_data>/<string:func>/<string:mimetype>/")
+@app.route("/stream/<channel>/<name>/<dict:meta_data>/<string:func>+<params_list:parameters>/<string:mimetype>/")
+@app.route("/stream/<channel>/<name>/<dict:meta_data>/<datetime:start>+<datetime:end>/<string:func>/<string:mimetype>/")
+@app.route("/stream/<channel>/<name>/<dict:meta_data>/<datetime:start>+<datetime:end>/<string:func>+<params_list:parameters>/<string:mimetype>/")
+def stream(channel, name, meta_data, mimetype, func, parameters=None, start=None, end=None):
     try:
         stream = hs.channel_manager[channel].find_stream(name=name, **meta_data)
-        data = stream.window().last(50)
-    except (KeyError, TypeError, MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError) as e:
-        return jsonify({'exception': str(type(e)), 'message': e.message})
+        if start and end:
+            ti = TimeInterval(start, end)
+            window = stream.window(ti)
+        else:
+            window = stream.window()
 
-    return Response(json.dumps(data, default=json_serial), mimetype="application/json")
+    except (KeyError, TypeError, MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError) as e:
+        return jsonify({
+            'exception': str(type(e)),
+            'message': e.message,
+            'data': dict(channel=channel, name=name, meta_data=meta_data, start=start, end=end)
+        })
+
+    try:
+        if hasattr(window, func):
+            if parameters:
+                data = getattr(window, func)(*(KNOWN_TYPES[p[0]](p[1]) for p in parameters))
+            else:
+                data = getattr(window, func)()
+            from collections import deque
+        else:
+            return jsonify({'exception': "Function not available", "message": func})
+    except (KeyError, TypeError) as e:
+        return jsonify({'exception': str(type(e)), 'message': e.message, 'data': (func, parameters)})
+
+    try:
+        return ENDPOINTS[mimetype](data)
+    except KeyError as e:
+        return jsonify({'exception': str(type(e)), 'message': "Endpoint not found", 'data': mimetype})
+    except TypeError as e:
+        return jsonify({'exception': str(type(e)), 'message': e.message, 'data': (func, parameters, str(list(data)))})
 
 
 @app.route("/factors")
