@@ -14,11 +14,14 @@
         <tr>
             <td class="col-md-2">{{ item.timestamp }}</td>
             <td class="col-md-10">
-                <table class="table table-bordered table-condensed">
-                    <tr>
-                        {{ item.value | custom_format('<td class="col-md-1">{}</td>') | safe  }}
-                    </tr>
-                </table>
+                {% if item.value is iterable %}
+                    <div class="row">
+                    {{ item.value | custom_format('<div class="col-md-1"><span style="float: right;">{}</span></div>') | safe  }}
+                    <div class="col-md-2" data-sparkline="{{ item.value }}" data-charttype="column"></div>
+                    </div>
+                {% else %}
+                    {{ item.value }}</td>
+                {% endif %}
             </td>
         </tr>
     {% endfor %}

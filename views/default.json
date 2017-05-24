@@ -1,0 +1,35 @@
+{
+  "description": "",
+  "data": {
+    "url": "INSERT_URL_HERE"
+  },
+  "mark": "tick",
+  "encoding": {
+    "x": {
+      "field": "datetime",
+      "type": "temporal",
+      "timeUnit": "month",
+      "axis": {
+        "labels": true,
+        "title": "INSERT_X_TITLE_HERE"
+      }
+    },
+    "y": {
+      "field": "value",
+      "type": "quantitative",
+      "axis": {
+        "labels": true,
+        "title": "",
+        "format": "$3d"
+      }
+    },
+  },
+  "embed": {
+    "renderer": "svg",
+    "actions": {
+      "export": true,
+      "source": true,
+      "editor": true
+    }
+  }
+}

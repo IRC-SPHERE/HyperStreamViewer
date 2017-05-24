@@ -7,7 +7,7 @@
             {% if tool %}
                  {% include("tool.html") %}
             {% else %}
-                <p>No tool found.</p>
+                <p>No tool found. Please select a <a href="{{ url_for('workflows') }}">workflow</a> first.</p>
             {% endif %}
             {% if error %}
                 <h4>{{ error.__class__.__name__ }}</h4>
