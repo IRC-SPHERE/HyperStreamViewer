@@ -84,6 +84,9 @@ Highcharts.SparkLine = function (a, b, c) {
                     negativeColor: '#910000',
                     borderColor: 'silver'
                 }
+            },
+            exporting: {
+                enabled: false
             }
         };
 
@@ -139,10 +142,10 @@ function doChunk() {
             break;
         }
 
-        // Print a feedback on the performance
-        if (n === fullLen) {
-            $('#result').html('Generated ' + fullLen + ' sparklines in ' + (new Date() - start) + ' ms');
-        }
+        // // Print a feedback on the performance
+        // if (n === fullLen) {
+        //     $('#result').html('Generated ' + fullLen + ' sparklines in ' + (new Date() - start) + ' ms');
+        // }
     }
 }
 doChunk();
