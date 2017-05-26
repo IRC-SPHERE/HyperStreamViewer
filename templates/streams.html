@@ -46,7 +46,7 @@
         {% include "stream_chart.html" %}
     <script type="text/javascript" src="{{ url_for('static', filename='sparkline.js') }}"></script>
 
-    <script language="JavaScript">
+    <script type="text/javascript">
     // Switch between chart types
     $('#tab-chart-{{ stream_id | u }}').find('input').on('change', function() {
         chartType = $('input[name=chart-type]:checked', '#tab-chart-{{ stream_id | u }}').val();
@@ -57,8 +57,10 @@
 
     });
     </script>
+    {% endfor %}
 
-    <script language="JavaScript">
+    {% if not compact %}
+    <script type="text/javascript">
     // Switch between table and chart view
     if (location.hash) {
         $('a[href=\'' + location.hash + '\']').tab('show');
@@ -90,5 +92,6 @@
         $('a[href=\'' + anchor + '\']').tab('show');
     });
     </script>
-    {% endfor %}
+    {% endif %}
+
 {% endblock %}

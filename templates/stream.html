@@ -14,15 +14,21 @@
         <p><a href="{{ url_for('stream', channel=stream.channel.channel_id, name=stream_id.name, meta_data=dict(stream_id.meta_data), mimetype='json', func='items') }}">JSON (all)</a></p>
         {% endif %}
 
+        {% if not compact %}
         <ul class="nav nav-tabs" id="view-selector">
             <li class="active"><a href="#tab-table-{{ stream_id | u }}" data-toggle="tab">Table</a></li>
             <li><a href="#tab-chart-{{ stream_id | u }}" data-toggle="tab">Chart</a></li>
         </ul>
+        {% endif %}
         <div class="tab-content">
+            {% if not compact %}
             <div class="tab-pane active" id="tab-table-{{ stream_id | u }}">
                 {% include "stream_table.html" %}
             </div>
             <div class="tab-pane" id="tab-chart-{{ stream_id | u }}">
+            {% else %}
+            <div class="tab-pane active" id="tab-chart-{{ stream_id | u }}">
+            {% endif %}
                 <div class="row">
                     <div class="btn-group" data-toggle="buttons">
                         <label class="btn btn-default" id="label-line-{{ stream_id | u }}">

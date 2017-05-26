@@ -169,7 +169,7 @@
     var allChartTypes = ["line", "column", "bar", "heatmap"];
 
 
-    function get_label(c) {
+    function getLabel(c) {
         return $("#label-" + c + "-{{ stream_id | u }}");
     }
 
@@ -177,7 +177,7 @@
     function show(availableChartTypes, active) {
         // Show the available chart types, and set the active one
         _.each(availableChartTypes, function(c) {
-            var label = get_label(c);
+            var label = getLabel(c);
             label.show();
             if (c === active) {
                 label.addClass("active");
@@ -188,7 +188,7 @@
 
         // Hide all the other chart types
         _.each(_.difference(allChartTypes, availableChartTypes), function(c) {
-            var label = get_label(c);
+            var label = getLabel(c);
             label.hide();
             label.removeClass("active");
         })
@@ -196,6 +196,11 @@
 
 
     $.getJSON('{{ data }}',  function(raw) {
+        if (raw.length === 0) {
+            console.log("no data for {{ data }}");
+            return;
+        }
+
         data = _.map(raw, function(d) { return [Date.parse(d.timestamp), d.value]; });
         timestamps = _.unzip(data)[0];
         heatmapData = _.flatten(_.map(data, function(dui) { return _.map(_.values(dui[1]), function(duj, j) { return [dui[0], j, duj]; }); }), 1);
