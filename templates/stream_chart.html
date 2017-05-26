@@ -8,6 +8,7 @@
     var heatmapData;  // different format to other charts
     var chartType;
     var numVariables;  // for multivariate data, how many variables
+    var categories;    // categories for multivariate data
 
     // default chart type for multivariate and univariate charts
     var defaultChartType = {
@@ -142,10 +143,12 @@
             rangeSelector: createRangeSelector()
         };
 
+
+
         if (chartType === 'heatmap') {
             chartDefinition.xAxis.categories = timestamps;
             chartDefinition.xAxis.gapGridLineWidth = 0;
-            chartDefinition.yAxis.categories = _.range(numVariables).map(String);
+            chartDefinition.yAxis.categories = categories;
             chartDefinition.yAxis.min = 0;
             chartDefinition.yAxis.max = numVariables;
             chartDefinition.legend = {
@@ -218,11 +221,13 @@
         if (value.constructor === Array) {
             numVariables = data[0][1].length;
             availableChartTypes = ["line", "column", "bar", "heatmap"];
+            categories = _.range(numVariables).map(String);
         }
 
         if (value.constructor === Object) {
             numVariables = _.keys(data[0][1]).length;
             availableChartTypes = ["line", "column", "bar", "heatmap"];
+            categories = _.keys(data[0][1]);
         }
 
         // debugger;
