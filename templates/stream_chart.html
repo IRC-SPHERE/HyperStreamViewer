@@ -148,8 +148,13 @@
         if (chartType === 'heatmap') {
             chartDefinition.xAxis.categories = timestamps;
             chartDefinition.xAxis.gapGridLineWidth = 0;
-            chartDefinition.yAxis.categories = categories;
-            chartDefinition.yAxis.min = 0;
+            chartDefinition.yAxis = {
+                categories: categories,
+                title: { text: null},
+                min: 0,
+                max: numVariables,
+                labels: {style: {color: 'white', fontSize: "14px"}}
+            };
             chartDefinition.yAxis.max = numVariables;
             chartDefinition.legend = {
                 "enabled": true,
