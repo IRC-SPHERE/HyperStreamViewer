@@ -53,6 +53,10 @@ def custom_format(value, template):
     return template.format(value)
 
 
+def stream_id_to_url(stream_id):
+    return str(stream_id).replace(': ', '-').replace(', ', '-').replace('[', '').replace(']', '').replace('=', '-')
+
+
 def treelib_to_treeview(d):
     root = []
 

@@ -25,7 +25,7 @@ from plotting import get_bokeh_plot
 from bokeh.util.string import encode_utf8
 
 from view_helpers import treelib_to_treeview, custom_sort, custom_format, ListConverter, DictConverter, \
-    ParameterListConverter, DatetimeConverter, ENDPOINTS, KNOWN_TYPES
+    ParameterListConverter, DatetimeConverter, ENDPOINTS, KNOWN_TYPES, stream_id_to_url
 
 from hyperstream import HyperStream, Tool, TimeInterval
 from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError, \
@@ -43,6 +43,7 @@ app.jinja_env.add_extension('jinja2.ext.do')
 app.jinja_env.filters['treelib_to_treeview'] = treelib_to_treeview
 app.jinja_env.filters['custom_sort'] = custom_sort
 app.jinja_env.filters['custom_format'] = custom_format
+app.jinja_env.filters['u'] = stream_id_to_url
 app.jinja_env.auto_reload = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
@@ -83,17 +84,18 @@ def channels():
 @app.route("/streams")
 def streams():
     error = None
+    found_streams = None
     try:
         d = dict(request.args.items())
         channel = d.pop("channel")
-        stream = hs.channel_manager[channel].find_stream(**d)
+        found_streams = hs.channel_manager[channel].find_streams(**d)
     except KeyError:
-        stream = None
-    except (MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError) as e:
-        stream = None
+        pass
+    except (StreamNotFoundError, StreamNotAvailableError) as e:
+        pass
         error = e
 
-    return render_template("streams.html", hyperstream=hs, stream=stream, error=error)
+    return render_template("streams.html", hyperstream=hs, streams=found_streams, error=error)
 
 
 @app.route("/stream/<channel>/<name>/<dict:meta_data>/<string:func>/<string:mimetype>/")

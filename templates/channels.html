@@ -9,6 +9,11 @@
         font-size: small;
         margin: 0 0 0 0;
     }
+
+    .clusterize-scroll {
+        max-height: 400px;
+        overflow: auto;
+    }
     </style>
 {% endblock %}
 
@@ -26,52 +31,67 @@
                         <p></p>
                     </div>
                     <div class="panel">
-                        <div class="panel-body clusterize table-sm" id="stream-list">
+                        <div class="panel-body clusterize-scroll" id="scrollArea">
+                            <div id="contentArea" class="clusterize-content">
+{#                                    <li class="clusterize-no-data">Loading data…</li>#}
+                                    {% for stream_id in channel_streams %}
+                                    {% set meta_data = dict(stream_id.meta_data) %}
+                                    {% set href = url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) %}
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                        <a class="stream-id-{{ stream_id | u }}" href="{{ href }}">
+                                            {{ stream_id}}
+                                        </a>
+                                        </div>
+
+                                        {% set intervals = channel.streams[stream_id].calculated_intervals %}
+                                        {% if intervals %}
+                                        <div class="col-xs-6">
+                                            {{ intervals | map('string') | join(", ") }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="row">
+                                    <hr style="height: 1px; padding: 0px; margin: 0px;"/>
+                                    </div>
+                                {% endfor %}
+                             </div>
+
 {#                            <div class="row"><div class="col-sm-3">#}
 {#                                <input class="search form-control" placeholder="Search"  type="text" id="search" /><br/>#}
 {#                            </div></div>#}
 
                             <!--LIST SCROLLING HERE -->
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th class="col-sm-8">Stream ID</th>
-                                        <th class="col-sm-4">Calculated Intervals</th>
-                                    </tr>
-                                </thead>
-                            </table>
-                            <div id="scrollArea" class="clusterize-scroll">
-                                <table>
-                                    <tbody id="contentArea" class="clusterize-content">
-                                    {% for stream_id in channel_streams %}
-                                    {% set meta_data = dict(stream_id.meta_data) %}
-                                    {% set href = url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) %}
-                                    <tr>
-                                        <td><a class="col-sm-8 stream-id-{{ stream_id | replace(' ', '-') }}" href="{{ href }}">
-                                            {{ stream_id}}
-                                        </a></td>
-                                        {% set intervals = channel.streams[stream_id].calculated_intervals %}
-                                        {% if intervals %}
-                                        <td class="col-sm-4">{{ intervals | map('string') | list }}</td>
-                                        {% else %}
-                                        <td class="col-sm-4"></td>
-                                        {% endif %}
-                                    </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-{#                                <ul id="contentArea" class="clusterize-content">#}
-{#                                    <li class="clusterize-no-data">Loading data…</li>#}
+{#                            <table class="table table-sm">#}
+{#                                <thead>#}
+{#                                    <tr>#}
+{#                                        <th class="col-sm-8">Stream ID</th>#}
+{#                                        <th class="col-sm-4">Calculated Intervals</th>#}
+{#                                    </tr>#}
+{#                                </thead>#}
+{#                            </table>#}
+{#                            <div id="scrollArea" class="clusterize-scroll">#}
+{#                                <table class="table table-extra-condensed">#}
+{#                                    <tbody id="contentArea" class="clusterize-content">#}
 {#                                    {% for stream_id in channel_streams %}#}
 {#                                    {% set meta_data = dict(stream_id.meta_data) %}#}
-{#                                    <li class="col-xs-12">#}
-{#                                        <a class="stream-id-{{ stream_id | replace(' ', '-') }}" href="{{ url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) }}">#}
+{#                                    {% set href = url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) %}#}
+{#                                    <tr>#}
+{#                                        <td><a class="col-sm-8" href="{{ href }}">#}
 {#                                            {{ stream_id}}#}
-{#                                        </a>#}
-{#                                    </li>#}
+{#                                        </a></td>#}
+{#                                        {% set intervals = channel.streams[stream_id].calculated_intervals %}#}
+{#                                        {% if intervals %}#}
+{#                                        <td class="col-sm-4">{{ intervals | map('string') | list }}</td>#}
+{#                                        {% else %}#}
+{#                                        <td class="col-sm-4"></td>#}
+{#                                        {% endif %}#}
+{#                                    </tr>#}
 {#                                    {% endfor %}#}
-{#                              </ul>#}
-                            </div>
+{#                                    </tbody>#}
+{#                                </table>#}
+{##}
+{#                            </div>#}
 
                             <!------------------------->
 
@@ -145,11 +165,15 @@
 /*
 * Init clusterize.js
 */
-var clusterize = new Clusterize({
-    //rows: filterRows(rows),
-    scrollId: 'scrollArea',
-    contentId: 'contentArea'
-});
+if (false) {
+    // Temporarily disable clusterize
+    var clusterize = new Clusterize({
+        //rows: filterRows(rows),
+       scrollId: 'scrollArea',
+       contentId: 'contentArea',
+      rowsInBlock: 200
+    );
+}
 
 {#/*#}
 {#* Multi-column search#}

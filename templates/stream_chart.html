@@ -1,107 +1,81 @@
-    <script type="text/javascript" src="{{ url_for('bower.static', filename='underscore/underscore-min.js') }}"></script>
-
-{#------------------    PLOTLY.JS   --------------#}
-{#    <script type="text/javascript" src="{{ url_for('bower.static', filename='plotlyjs/plotly.js') }}"></script>#}
-{#    <script language="JavaScript">#}
-{##}
-{#    Plotly.d3.json('{{ data }}', function(rows){#}
-{#        var trace = {#}
-{#              type: 'scatter',                    // set the chart type#}
-{#              mode: 'lines',                      // connect points with lines#}
-{#              x: rows.map(function(row){          // set the x-data#}
-{#                return row.timestamp;#}
-{#              }),#}
-{#              y: rows.map(function(row){          // set the x-data#}
-{#                return row.value;#}
-{#              }),#}
-{#              line: {                             // set the width of the line.#}
-{#                width: 1#}
-{#              }#}
-{#        };#}
-{##}
-{#        var layout = {#}
-{#            yaxis: {title: "value"},       // set the y axis title#}
-{#            xaxis: {#}
-{#                showgrid: false,                  // remove the x-axis grid lines#}
-{#                tickformat: "%Y-%m-%d %H %M %S"#}
-{#            },#}
-{#            margin: {                           // update the left, bottom, right, top margin#}
-{#                l: 40, b: 200, r: 10, t: 20#}
-{#            }#}
-{#        };#}
-{##}
-{#        Plotly.plot(document.getElementById('chart'), [trace], layout, {showLink: false});#}
-{#    });#}
-{#    </script>#}
-
-{#------------------    VEGA-LITE   --------------#}
-{#    <script type="text/javascript" src="{{ url_for('bower.static', filename='d3/d3.js') }}" charset="utf-8"></script>#}
-{#    <script type="text/javascript" src="{{ url_for('bower.static', filename='vega/vega.js') }}" charset="utf-8"></script>#}
-{#    <script type="text/javascript" src="{{ url_for('bower.static', filename='vega-lite/vega-lite.js') }}" charset="utf-8"></script>#}
-{#    <script type="text/javascript" src="{{ url_for('bower.static', filename='vega-embed/vega-embed.js') }}" charset="utf-8"></script>#}
-{##}
-{#    <script language="JavaScript">#}
-{##}
-{#    var vlSpec = {#}
-{#        "description": "{{ stream.stream_id }}",#}
-{#        "data": {"url": "{{ data }}", "format": {"type": "json"}},#}
-{#        "mark": "line",#}
-{#        "encoding": {#}
-{#            "x": {"field": "timestamp", "type": "temporal"},#}
-{#            "y": {"field": "value", "type": "quantitative"}#}
-{#        },#}
-{#        "padding": "strict"#}
-{#    };#}
-{##}
-{#    var embedSpec = {#}
-{#        mode: "vega-lite",#}
-{#        spec: vlSpec#}
-{#    };#}
-{##}
-{#    vg.embed("#chart", embedSpec, function(error, result) {#}
-{#        // Callback receiving the View instance and parsed Vega spec#}
-{#        // result.view is the View, which resides under the '#chart' element#}
-{#    });#}
-{##}
-{#    </script>#}
-
-{#------------------    HighCharts   --------------#}
-    <script type="text/javascript" src="{{ url_for('bower.static', filename='highstock/highstock.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('bower.static', filename='highstock/modules/heatmap.js') }}"></script>
-    <script language="JavaScript">
+    <script type="text/javascript">
 
     var seriesOptions = [];
-    // var seriesCounter = 0;
-    // var seriesNames = [];
+    var streamChart;
+    var data;
+    var chartData;
+    var timestamps;
+    var heatmapData;  // different format to other charts
+    var chartType;
+    var numVariables;  // for multivariate data, how many variables
+
+    // default chart type for multivariate and univariate charts
+    var defaultChartType = {
+        'true': 'line',
+        'false': 'line'
+    };
 
     function isNumeric(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
 
-    function createLineSeries(data, i) {
-        return {
-            name: i,
+    var globalSeriesOptions = {
+        'line': {
             type: 'line',
-            data: data,
             tooltip: {
-                valueDecimals: 2
+                // headerFormat: 'Value<br/>',
+                // pointFormat: '{point.x:%e %b, %Y %H:%M} {point.y}: <b>{point.value}</b>',
+                pointFormatter: function () {
+                    var point = this;
+                    return '<span style="color:' + point.color + '">\u25CF</span> ' + point.series.name + ': <b>' + point.y + '</b><br/>';
+                },
+                followPointer: true,
+                snap: 1
             }
-        }
-    }
-
-    function createHeatmapSeries(data, i) {
-        return {
-            // name: i,
-            data: data,
+        },
+        'column': {
+            type: 'column',
+            tooltip: {valueDecimals: 2}
+        },
+        'bar': {
+            type: 'bar',
+            tooltip: {valueDecimals: 2}
+        },
+        'heatmap': {
             type: 'heatmap',
             boostThreshold: 100,
             borderWidth: 0,
             nullColor: '#EFEFEF',
             colsize: 24 * 36e5, // one day
             tooltip: {
-                headerFormat: 'Value<br/>',
-                pointFormat: '{point.x:%e %b, %Y} {point.y}: <b>{point.value}</b>'
+                headerFormat: '{point.x}<br/>',
+                pointFormat: '{point.y}: <b>{point.value}</b>',
+                followPointer: true,
+                snap: 1,
+                xDateFormat: '%e %b, %Y %H:%M}<br/>'
             }
+        }
+    };
+
+    function createSeries(data, type, multivariate, i) {
+        if (multivariate) {
+            if (type === 'heatmap') {
+                // set multivariate to false since it's a single series for heatmap
+                createSeries(heatmapData, 'heatmap', false);
+            } else {
+                // Create series for multi-line plots
+                _.each(_.unzip(_.pluck(data, 1)), function (column, i) {
+                    // recursive call to create each series
+                    createSeries(_.zip(_.pluck(data, 0), column), type, false, i);
+                });
+            }
+        } else {
+            // Make a deep copy of the series definition
+            var series = jQuery.extend(true, {}, globalSeriesOptions[type]);
+            series.data = data;
+            i = (typeof i === 'undefined') ? 1 : i;
+            series.name = i;
+            seriesOptions[i - 1] = series;
         }
     }
 
@@ -137,7 +111,7 @@
         };
     }
 
-    function createChart(data, seriesOptions, chartType) {
+    function createChart(chartType, seriesOptions) {
 
         var chartDefinition = {
             title: {
@@ -164,15 +138,16 @@
             series: seriesOptions,
             credits: {
                 enabled: false
-            }
+            },
+            rangeSelector: createRangeSelector()
         };
 
         if (chartType === 'heatmap') {
-            chartDefinition.xAxis.categories = _.unzip(data)[0];
+            chartDefinition.xAxis.categories = timestamps;
             chartDefinition.xAxis.gapGridLineWidth = 0;
-            chartDefinition.yAxis.categories = _.range(data[0][1].length).map(String);
+            chartDefinition.yAxis.categories = _.range(numVariables).map(String);
             chartDefinition.yAxis.min = 0;
-            chartDefinition.yAxis.max = data[0][1].length;
+            chartDefinition.yAxis.max = numVariables;
             chartDefinition.legend = {
                 "enabled": true,
                 "align": "right",
@@ -181,42 +156,77 @@
                 "symbolHeight": 320
             };
             chartDefinition.colorAxis = {
-                // "min": 0,
-                // "minColor": "#FFFFFF",
-                // "maxColor": "#7EB26D"
+                minColor: '#3060cf',
+                maxColor: '#c4463a'
             };
+
             // debugger;
         }
 
-        chartDefinition.rangeSelector = createRangeSelector();
-        Highcharts.stockChart('chart', chartDefinition);
+        streamChart = Highcharts.stockChart('chart-{{ stream_id | u }}', chartDefinition);
+    }
+
+    var allChartTypes = ["line", "column", "bar", "heatmap"];
+
+
+    function get_label(c) {
+        return $("#label-" + c + "-{{ stream_id | u }}");
+    }
+
+
+    function show(availableChartTypes, active) {
+        // Show the available chart types, and set the active one
+        _.each(availableChartTypes, function(c) {
+            var label = get_label(c);
+            label.show();
+            if (c === active) {
+                label.addClass("active");
+            } else {
+                label.removeClass("active");
+            }
+        });
+
+        // Hide all the other chart types
+        _.each(_.difference(allChartTypes, availableChartTypes), function(c) {
+            var label = get_label(c);
+            label.hide();
+            label.removeClass("active");
+        })
     }
 
 
     $.getJSON('{{ data }}',  function(raw) {
-        var data = _.map(raw, function(d) { return [Date.parse(d.timestamp), d.value]; });
-        var chartType;
+        data = _.map(raw, function(d) { return [Date.parse(d.timestamp), d.value]; });
+        timestamps = _.unzip(data)[0];
+        heatmapData = _.flatten(_.map(data, function(dui) { return _.map(_.values(dui[1]), function(duj, j) { return [dui[0], j, duj]; }); }), 1);
 
-        if (isNumeric(data[0][1])) {
-            seriesOptions[0] = createLineSeries(data, 0);
-            chartType = 'line';
+        var availableChartTypes;
+
+        // work out value type using first data item
+        var value = data[0][1];
+
+        if (isNumeric(value)) {
+            numVariables = 1;
+            availableChartTypes = ["line", "column", "bar"];
         }
 
-        if (data[0][1].constructor === Array) {
-            // Assume that there are the same number of items in each value field
-{#            var len = data[0][1].length;#}
-{#            for (var i = 0; i < len; i++) {#}
-{#                var column = $.map(data, function (d) { return new Array([d[0], d[1][i]]); });#}
-{#                seriesOptions[i] = createLineSeries(column, i);#}
-{#            }#}
-            // debugger;
-
-            var hmd = _.flatten(_.map(data, function(dui, i) { return _.map(dui[1], function(duj, j) { return [dui[0], j, duj]; }); }), 1);
-            seriesOptions[0] = createHeatmapSeries(hmd);
-            chartType = 'heatmap';
-            // debugger;
+        if (value.constructor === Array) {
+            numVariables = data[0][1].length;
+            availableChartTypes = ["line", "column", "bar", "heatmap"];
         }
 
-        createChart(data, seriesOptions, chartType);
+        if (value.constructor === Object) {
+            numVariables = _.keys(data[0][1]).length;
+            availableChartTypes = ["line", "column", "bar", "heatmap"];
+        }
+
+        // debugger;
+
+        chartType = defaultChartType[numVariables !== 1];
+        chartData = chartType === 'heatmap' ? heatmapData : data;
+
+        show(availableChartTypes, chartType);
+        createSeries(chartData, chartType, numVariables !== 1);
+        createChart(chartType, seriesOptions);
     });
     </script>

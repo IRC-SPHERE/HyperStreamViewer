@@ -1,0 +1,49 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">{{ stream_id.name }}</h4>
+    </div>
+
+    <div class="panel-body">
+        <p><strong>Meta data: </strong>{% for v in stream_id.meta_data %}{{ v[0] }}=<strong>{{ v[1] }}</strong>{{ "," if not loop.last }}&nbsp{% endfor %}</p>
+        {% if not compact %}
+        <p><strong>Channel: </strong>{{ stream.channel.__class__.__name__ }}: "{{ stream.channel.channel_id }}"</p>
+        <p>{{ stream_id | u }}</p>
+        <p><strong>Calculated intervals: </strong>{{ stream.calculated_intervals | map('string') | list | join(', ') }}</p>
+        <p><strong>Last item: </strong>{% if stream.calculated_intervals %}<br/>&emsp;Timestamp: {{ stream.window().last().timestamp }}<br/>&emsp;Value: {{ stream.window().last().value }}{% else %}No calculations have been performed.{% endif %}</p>
+        <p><a href="{{ url_for('stream', channel=stream.channel.channel_id, name=stream_id.name, meta_data=dict(stream_id.meta_data), mimetype='json', func='tail', parameters=[('int', '10')]) }}">JSON (last 10 items)</a></p>
+        <p><a href="{{ url_for('stream', channel=stream.channel.channel_id, name=stream_id.name, meta_data=dict(stream_id.meta_data), mimetype='json', func='items') }}">JSON (all)</a></p>
+        {% endif %}
+
+        <ul class="nav nav-tabs" id="view-selector">
+            <li class="active"><a href="#tab-table-{{ stream_id | u }}" data-toggle="tab">Table</a></li>
+            <li><a href="#tab-chart-{{ stream_id | u }}" data-toggle="tab">Chart</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="tab-table-{{ stream_id | u }}">
+                {% include "stream_table.html" %}
+            </div>
+            <div class="tab-pane" id="tab-chart-{{ stream_id | u }}">
+                <div class="row">
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default" id="label-line-{{ stream_id | u }}">
+                            <input type="radio" name="chart-type" id="chart-type-line-{{ stream_id | u }}" value="line">Line
+                        </label>
+                        <label class="btn btn-default" id="label-column-{{ stream_id | u }}">
+                            <input type="radio" name="chart-type" id="chart-type-column-{{ stream_id | u }}" value="column">Column
+                        </label>
+                        <label class="btn btn-default" id="label-bar-{{ stream_id | u }}">
+                            <input type="radio" name="chart-type" id="chart-type-bar-{{ stream_id | u }}" value="bar">Bar
+                        </label>
+                        <label class="btn btn-default" id="label-heatmap-{{ stream_id | u }}">
+                            <input type="radio" name="chart-type" id="chart-type-heatmap-{{ stream_id | u }}" value="heatmap">Heatmap
+                        </label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div id="chart-{{ stream_id | u }}" class="col-sm-12" style="width: 100%; height: 800px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

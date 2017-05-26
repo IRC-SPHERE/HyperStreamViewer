@@ -1,26 +1,21 @@
-<h4>Stream View</h4>
-
-{#<ul class="nav nav-tabs">#}
-{#  <li role="presentation" class="active"><a href="#">Tabular</a></li>#}
-{#  <li role="presentation"><a href="#">Raw</a></li>#}
-{#  <li role="presentation"><a href="#">Plot</a></li>#}
-{#</ul>#}
-
+{#<h4>Stream View</h4>#}
 {% if stream.calculated_intervals %}
     <table class="table table-bordered table-condensed table-inverse">
     <tr><th class="col-md-2">Timestamp</th><th class="col-md-10" colspan="10">Value</th></tr>
 
     {% for item in stream.window().tail(50) %}
         <tr>
-            <td class="col-md-2">{{ item.timestamp }}</td>
+            <td class="col-md-2">{{ item.timestamp.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] }}Z</td>
             <td class="col-md-10">
-                {% if item.value is iterable %}
+                {% if item.value is mapping %}
+                    {{ item.value | custom_format('<span style="float: left;">{}</span>') | safe  }}
+                {% elif item.value is iterable %}
                     <div class="row">
                     {{ item.value | custom_format('<div class="col-md-1"><span style="float: right;">{}</span></div>') | safe  }}
                     <div class="col-md-2" data-sparkline="{{ item.value }}" data-charttype="column"></div>
                     </div>
                 {% else %}
-                    {{ item.value }}</td>
+                    {{ item.value }}
                 {% endif %}
             </td>
         </tr>
