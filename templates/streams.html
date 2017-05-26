@@ -6,16 +6,25 @@
         <div class="col-lg-12">
             {% if streams %}
                 {% set compact = streams | length > 1 %}
+{#                {% set compact = false %}#}
                 <div class="container-fluid">
                 {% for stream_id, stream in streams.items() %}
-                    {% if compact %}
-                    <div class="col-sm-6">
-                    {% endif %}
-                        <div class="container-fluid">
-                            {% include("stream.html") %}
+                    {% if stream.calculated_intervals %}
+                        {% if compact %}
+                        <div class="col-sm-6">
+                        {% endif %}
+                            <div class="container-fluid">
+                                {% include("stream.html") %}
+                            </div>
+                        {% if compact %}
                         </div>
-                    {% if compact %}
-                    </div>
+                        {% endif %}
+                    {% else %}
+                        {% if not compact %}
+                            <div class="container-fluid">
+                                {% include("stream.html") %}
+                            </div>
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
                 </div>
@@ -41,22 +50,25 @@
     <!-- optional -->
     <script type="text/javascript" src="{{ url_for('bower.static', filename='highstock/modules/offline-exporting.js') }}"></script>
 
+    <script type="text/javascript" src="{{ url_for('.static', filename='highchartsHelpers.js') }}"></script>
+
     {% for stream_id, stream in streams.items() %}
-        {% set data = url_for('stream', channel=stream.channel.channel_id, name=stream.stream_id.name, meta_data=dict(stream.stream_id.meta_data), mimetype='json', func='items') %}
-        {% include "stream_chart.html" %}
-    <script type="text/javascript" src="{{ url_for('static', filename='sparkline.js') }}"></script>
+        {% if stream.calculated_intervals %}
+            {% set data = url_for('stream', channel=stream.channel.channel_id, name=stream.stream_id.name, meta_data=dict(stream.stream_id.meta_data), mimetype='json', func='items') %}
+            {% include "stream_chart.html" %}
+            <script type="text/javascript" src="{{ url_for('static', filename='sparkline.js') }}"></script>
 
-    <script type="text/javascript">
-    // Switch between chart types
-    $('#tab-chart-{{ stream_id | u }}').find('input').on('change', function() {
-        chartType = $('input[name=chart-type]:checked', '#tab-chart-{{ stream_id | u }}').val();
-        chartData = chartType === 'heatmap' ? heatmapData : data;
-        seriesOptions = [];
-        createSeries(chartData, chartType, numVariables !== 1);
-        createChart(chartType, seriesOptions);
-
-    });
-    </script>
+            <script type="text/javascript">
+            // Switch between chart types
+            $('#tab-chart-{{ stream_id | u }}').find('input').on('change', function() {
+                chartType = $('input[name=chart-type]:checked', '#tab-chart-{{ stream_id | u }}').val();
+                chartData = chartType === 'heatmap' ? heatmapData : data;
+                seriesOptions = [];
+                createSeries(chartData, chartType, numVariables !== 1);
+                createChart(chartType, seriesOptions, '{{ stream_id | u }}', '{{ stream_id.name }}', '{{ dict(stream_id.meta_data) | tojson }}');
+            });
+            </script>
+        {% endif %}
     {% endfor %}
 
     {% if not compact %}
