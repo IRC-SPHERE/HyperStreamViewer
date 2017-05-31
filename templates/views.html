@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block body %}
+    {{ super() }}
+     <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                {% if views %}
+                    {% for v in views %}
+                        {% set url = url_for('streams', default_view=v.data.default_view, channel=v.data.channel, name=v.data.name, **v.data.meta_data) %}
+                        <p><strong>{{ v.filename }}: </strong><a href="{{ url }}">{{ url }}</a></p>
+                    {% endfor %}
+                {% endif %}
+                {% if errors %}
+                    <h3>Errors:</h3>
+                    {% for e in errors %}
+                        <p><strong>Filename: </strong>views/{{ e[0] }}<br/><strong>{{ e[1].__class__.__name__ }}: </strong> {{ e[1] }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

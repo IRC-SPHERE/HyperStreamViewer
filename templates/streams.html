@@ -50,8 +50,20 @@
     <!-- optional -->
     <script type="text/javascript" src="{{ url_for('bower.static', filename='highstock/modules/offline-exporting.js') }}"></script>
 
+    {% if default_view %}
+    <script type="text/javascript">
+    var defaultChartType = {
+        'false': '{{ default_view }}',
+        'true': '{{ default_view }}'
+    };
+    // debugger;
+    </script>
+    {% endif %}
+
+
     <script type="text/javascript" src="{{ url_for('.static', filename='highchartsHelpers.js') }}"></script>
 
+    {% if streams %}
     {% for stream_id, stream in streams.items() %}
         {% if stream.calculated_intervals %}
             {% set data = url_for('stream', channel=stream.channel.channel_id, name=stream.stream_id.name, meta_data=dict(stream.stream_id.meta_data), mimetype='json', func='items') %}
@@ -104,6 +116,7 @@
         $('a[href=\'' + anchor + '\']').tab('show');
     });
     </script>
+    {% endif %}
     {% endif %}
 
 {% endblock %}

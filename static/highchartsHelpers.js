@@ -12,10 +12,12 @@ var numVariables;  // for multivariate data, how many variables
 var categories;    // categories for multivariate data
 
 // default chart type for multivariate and univariate charts
-var defaultChartType = {
-    'true': 'line',
-    'false': 'line'
-};
+if (typeof(defaultChartType) === "undefined") {
+    var defaultChartType = {
+        'true': 'line',
+        'false': 'line'
+    };
+}
 
 function isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);

@@ -21,6 +21,8 @@
 from flask import Flask, render_template, request, jsonify
 from flask_bower import Bower
 from plotting import get_bokeh_plot
+import simplejson as json
+import os
 
 from bokeh.util.string import encode_utf8
 
@@ -81,12 +83,10 @@ def channels():
     return render_template("channels.html", hyperstream=hs, channel_id=channel_id, channel_streams=channel_streams)
 
 
-@app.route("/streams")
-def streams():
+def find_streams(d):
     error = None
     found_streams = None
     try:
-        d = dict(request.args.items())
         channel = d.pop("channel")
         found_streams = hs.channel_manager[channel].find_streams(**d)
     except KeyError:
@@ -94,8 +94,19 @@ def streams():
     except (StreamNotFoundError, StreamNotAvailableError) as e:
         pass
         error = e
+    return error, found_streams
 
-    return render_template("streams.html", hyperstream=hs, streams=found_streams, error=error)
+
+@app.route("/streams")
+def streams():
+    d = dict(request.args.items())
+    if 'default_view' in d:
+        default_view = d.pop('default_view')
+    else:
+        default_view = None
+    error, found_streams = find_streams(d)
+    return render_template("streams.html", hyperstream=hs, streams=found_streams, error=error,
+                           default_view=default_view)
 
 
 @app.route("/stream/<channel>/<name>/<dict:meta_data>/<string:func>/<string:mimetype>/")
@@ -178,6 +189,25 @@ def tools():
 @app.route("/workflows")
 def workflows():
     return render_template("workflows.html", hyperstream=hs)
+
+
+@app.route("/views")
+def views():
+    # error, found_streams = find_streams(dict(request.args.items()))
+    # return render_template("streams.html", hyperstream=hs, streams=found_streams, error=error)
+    #
+    # Load all of the json files in the views folder
+    files = []
+    errors = []
+    for fname in os.listdir("views"):
+        if fname.endswith(".json"):
+            with open(os.path.join("views", fname)) as f:
+                try:
+                    files.append(dict(filename=fname, data=json.load(f)))
+                except (OSError, IOError, TypeError) as e:
+                    errors.append((fname, e))
+
+    return render_template("views.html", hyperstream=hs, views=files, errors=errors)
 
 
 @app.route("/view")

@@ -5,19 +5,19 @@
     <div class="container-fluid">
         <div class="col-lg-12">
             <h2>Meta-data tree</h2>
-            <div id="tree"></div>
+            <div id="tree"><p>No meta-data found in database.</p></div>
         </div>
     </div>
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
+    {% if hyperstream.plate_manager.meta_data_manager.global_plate_definitions.depth() > 0 %}
+    <!--suppress UnnecessaryReturnStatementJS -->
     <script type="text/javascript">
         function getTree() {
             // Some logic to retrieve, or generate tree structure
-            var data = {{ hyperstream.plate_manager.meta_data_manager.global_plate_definitions.to_dict(with_data=True) | treelib_to_treeview | tojson | safe }};
-            // debugger;
-            return data;
+            return {{ hyperstream.plate_manager.meta_data_manager.global_plate_definitions.to_dict(with_data=True) | treelib_to_treeview | tojson | safe }};
     }
 
     $('#tree').treeview({
@@ -25,4 +25,5 @@
             enableLinks: true
         });
     </script>
+    {% endif %}
 {% endblock %}

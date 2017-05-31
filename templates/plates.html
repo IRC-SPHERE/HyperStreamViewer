@@ -4,6 +4,7 @@
     {{ super() }}
     <div class="container-fluid">
         <div class="col-lg-12">
+            {% if hyperstream.plate_manager.plates %}
             <table class="table table-bordered table-responsive">
                 <tr><th>Plate ID</th><th>Meta-data ID</th><th>Plate values</th></tr>
                 {% for plate in hyperstream.plate_manager.plates | custom_sort %}
@@ -23,6 +24,9 @@
                     </td></tr>
                 {% endfor %}
             </table>
+            {% else %}
+            <p>No plates found in the database.</p>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

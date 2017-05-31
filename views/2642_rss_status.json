@@ -1,0 +1,6 @@
+{
+    "channel": "mongo",
+    "name": "rss_status",
+    "meta_data": {},
+    "default_view": "heatmap"
+}
