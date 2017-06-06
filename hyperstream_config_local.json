@@ -1,0 +1,34 @@
+{
+    "mongo": {
+        "host": "localhost",
+        "port": 27017,
+        "tz_aware": true,
+        "db": "hyperstream"
+    },
+    "output_path": "output",
+    "plugins": [
+        {
+            "channel_id_prefix": "sphere",
+            "path": "plugins/sphere",
+            "channel_names": ["sphere_channel", "summary_channel"],
+            "has_tools": true,
+            "has_assets": true
+        }],
+    "online_engine": {
+        "interval": {
+            "start": -60,
+            "end": -10
+        },
+        "sleep": 30,
+        "iterations": 50,
+        "alarm": 6900
+    },
+    "online_engine_backup": {
+        "interval": {
+            "start": -60,
+            "end": -10
+        },
+        "sleep": 5,
+        "iterations": 100
+    }
+}

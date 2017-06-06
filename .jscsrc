@@ -1,0 +1,5 @@
+{
+    "preset": "google",
+    "maxErrors": 5000,
+    "validateIndentation": 4
+}

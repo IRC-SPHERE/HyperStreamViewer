@@ -12,7 +12,7 @@ var numVariables;  // for multivariate data, how many variables
 var categories;    // categories for multivariate data
 
 // default chart type for multivariate and univariate charts
-if (typeof(defaultChartType) === "undefined") {
+if (typeof(defaultChartType) === 'undefined') {
     var defaultChartType = {
         'true': 'line',
         'false': 'line'
@@ -20,7 +20,7 @@ if (typeof(defaultChartType) === "undefined") {
 }
 
 function isNumeric(n) {
-    return !isNaN(parseFloat(n)) && isFinite(n);
+    'use strict'; return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
 var globalSeriesOptions = {
@@ -29,8 +29,8 @@ var globalSeriesOptions = {
         tooltip: {
             // headerFormat: 'Value<br/>',
             // pointFormat: '{point.x:%e %b, %Y %H:%M} {point.y}: <b>{point.value}</b>',
-            pointFormatter: function () {
-                var point = this;
+            pointFormatter: function() {
+                'use strict'; var point = this;
                 return '<span style="color:' + point.color + '">\u25CF</span> ' + point.series.name + ': <b>' + point.y + '</b><br/>';
             },
             followPointer: true,
@@ -62,13 +62,13 @@ var globalSeriesOptions = {
 };
 
 function createSeries(data, type, multivariate, i) {
-    if (multivariate) {
+    'use strict'; if (multivariate) {
         if (type === 'heatmap') {
             // set multivariate to false since it's a single series for heatmap
             createSeries(heatmapData, 'heatmap', false);
         } else {
             // Create series for multi-line plots
-            _.each(_.unzip(_.pluck(data, 1)), function (column, i) {
+            _.each(_.unzip(_.pluck(data, 1)), function(column, i) {
                 // recursive call to create each series
                 createSeries(_.zip(_.pluck(data, 0), column), type, false, i);
             });
@@ -84,7 +84,7 @@ function createSeries(data, type, multivariate, i) {
 }
 
 function createRangeSelector() {
-    return {
+    'use strict'; return {
         buttons: [{
             type: 'hour',
             count: 1,
@@ -115,9 +115,8 @@ function createRangeSelector() {
     };
 }
 
-function createChart(chartType, seriesOptions, streamId, name, metaData) {
-
-    var chartDefinition = {
+function createChart(chartType, seriesOptions, streamId, name, metaData) {'use strict';
+    'use strict'; var chartDefinition = {
         title: {
             text: name
         },
@@ -146,44 +145,39 @@ function createChart(chartType, seriesOptions, streamId, name, metaData) {
         rangeSelector: createRangeSelector()
     };
 
-
-
-    if (chartType === 'heatmap') {
+    if (chartType !== 'heatmap') {
+    } else {
         chartDefinition.xAxis.categories = timestamps;
         chartDefinition.xAxis.gapGridLineWidth = 0;
         chartDefinition.yAxis = {
             categories: categories,
-            title: { text: null},
+            title: {text: null},
             min: 0,
             max: numVariables,
-            labels: {style: {color: 'white', fontSize: "14px"}}
+            labels: {style: {color: 'white', fontSize: '14px'}}
         };
         chartDefinition.yAxis.max = numVariables;
         chartDefinition.legend = {
-            "enabled": true,
-            "align": "right",
-            "layout": "vertical",
-            "verticalAlign": "middle",
-            "symbolHeight": 320
+            'enabled': true,
+            'align': 'right',
+            'layout': 'vertical',
+            'verticalAlign': 'middle',
+            'symbolHeight': 320
         };
         chartDefinition.colorAxis = {
             minColor: '#3060cf',
             maxColor: '#c4463a'
         };
-
-        // debugger;
     }
 
     streamChart = Highcharts.stockChart('chart-' + streamId, chartDefinition);
 }
 
-var allChartTypes = ["line", "column", "bar", "heatmap"];
-
+var allChartTypes = ['line', 'column', 'bar', 'heatmap'];
 
 function getLabel(c, streamId) {
-    return $("#label-" + c + streamId);
+    'use strict'; return $('#label-' + c + streamId);
 }
-
 
 function show(availableChartTypes, active, streamId) {
     // Show the available chart types, and set the active one
@@ -191,9 +185,9 @@ function show(availableChartTypes, active, streamId) {
         var label = getLabel(c, streamId);
         label.show();
         if (c === active) {
-            label.addClass("active");
+            label.addClass('active');
         } else {
-            label.removeClass("active");
+            label.removeClass('active');
         }
     });
 
@@ -201,6 +195,6 @@ function show(availableChartTypes, active, streamId) {
     _.each(_.difference(allChartTypes, availableChartTypes), function(c) {
         var label = getLabel(c, streamId);
         label.hide();
-        label.removeClass("active");
-    })
+        label.removeClass('active');
+    });
 }
