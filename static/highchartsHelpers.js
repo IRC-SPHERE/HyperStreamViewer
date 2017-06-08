@@ -12,8 +12,8 @@ var numVariables;  // for multivariate data, how many variables
 var categories;    // categories for multivariate data
 
 // default chart type for multivariate and univariate charts
-if (typeof(defaultChartType) === 'undefined') {
-    var defaultChartType = {
+if (typeof(window.defaultChartType) === 'undefined') {
+    window.defaultChartType = {
         'true': 'line',
         'false': 'line'
     };

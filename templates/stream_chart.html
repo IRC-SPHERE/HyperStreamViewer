@@ -1,5 +1,5 @@
     <script type="text/javascript">
-    $.getJSON('{{ data }}',  function(raw) {
+    function processData(raw) {
         if (raw.length === 0) {
             console.log("no data for {{ data }}");
             return;
@@ -8,6 +8,22 @@
         data = _.map(raw, function(d) { return [Date.parse(d.timestamp), d.value]; });
         timestamps = _.unzip(data)[0];
         heatmapData = _.flatten(_.map(data, function(dui) { return _.map(_.values(dui[1]), function(duj, j) { return [dui[0], j, duj]; }); }), 1);
+    }
+
+    if (window.autoreload) {
+        setInterval(function () {
+            $.getJSON('{{ data }}', function (data) {
+                var chart = $('#container').highcharts();
+                $.each(data, function (pos, serie) {
+                    chart.series[pos].setData(serie, false);
+                });
+                chart.redraw();
+            });
+        }, 300000);
+    }
+
+    $.getJSON('{{ data }}',  function(raw) {
+        processData(raw);
 
         var availableChartTypes;
 
@@ -33,7 +49,7 @@
 
         // debugger;
 
-        chartType = defaultChartType[numVariables !== 1];
+        chartType = window.defaultChartType[numVariables !== 1];
         chartData = chartType === 'heatmap' ? heatmapData : data;
 
         show(availableChartTypes, chartType, '{{ stream_id | u }}');

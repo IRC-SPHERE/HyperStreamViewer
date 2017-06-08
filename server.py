@@ -100,19 +100,20 @@ def find_streams(d):
 @app.route("/streams")
 def streams():
     d = dict(request.args.items())
-    if 'default_view' in d:
-        default_view = d.pop('default_view')
-    else:
-        default_view = None
+    autoreload = d.pop('autoreload', False)
+    default_view = d.pop('default_view', None)
     error, found_streams = find_streams(d)
     return render_template("streams.html", hyperstream=hs, streams=found_streams, error=error,
-                           default_view=default_view)
+                           default_view=default_view, autoreload=autoreload)
 
 
-@app.route("/stream/<channel>/<name>/<dict:meta_data>/<string:func>/<string:mimetype>/")
-@app.route("/stream/<channel>/<name>/<dict:meta_data>/<string:func>+<params_list:parameters>/<string:mimetype>/")
-@app.route("/stream/<channel>/<name>/<dict:meta_data>/<datetime:start>+<datetime:end>/<string:func>/<string:mimetype>/")
-@app.route("/stream/<channel>/<name>/<dict:meta_data>/<datetime:start>+<datetime:end>/<string:func>+<params_list:parameters>/<string:mimetype>/")
+stream_route = "/stream/<channel>/<name>/<dict:meta_data>/"
+
+
+@app.route(stream_route + "<string:func>/<string:mimetype>/")
+@app.route(stream_route + "<string:func>+<params_list:parameters>/<string:mimetype>/")
+@app.route(stream_route + "<datetime:start>+<datetime:end>/<string:func>/<string:mimetype>/")
+@app.route(stream_route + "<datetime:start>+<datetime:end>/<string:func>+<params_list:parameters>/<string:mimetype>/")
 def stream(channel, name, meta_data, mimetype, func, parameters=None, start=None, end=None):
     try:
         stream = hs.channel_manager[channel].find_stream(name=name, **meta_data)

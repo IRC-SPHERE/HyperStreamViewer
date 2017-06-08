@@ -9,7 +9,7 @@
 {#                {% set compact = false %}#}
                 <div class="container-fluid">
                 {% for stream_id, stream in streams.items() %}
-                    {% if stream.calculated_intervals %}
+                    {% if stream.calculated_intervals and stream.window().last() %}
                         {% if compact %}
                         <div class="col-sm-6">
                         {% endif %}
@@ -52,11 +52,14 @@
 
     {% if default_view %}
     <script type="text/javascript">
-    var defaultChartType = {
+    window.defaultChartType = {
         'false': '{{ default_view }}',
         'true': '{{ default_view }}'
     };
+
+    window.autoreload = $.parseJSON('{{ autoreload }}'.toLowerCase());
     // debugger;
+
     </script>
     {% endif %}
 
