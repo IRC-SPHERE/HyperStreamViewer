@@ -1,8 +1,8 @@
 {
-    "channel": "mongo",
+    "channel": "summary",
     "name": "env_per_uid_field_agg_perc",
     "meta_data": {
         "env_field": "temperature"
     },
-    "default_view": "heatmap"
+    "default_view": "line"
 }

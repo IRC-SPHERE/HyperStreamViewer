@@ -86,13 +86,16 @@ def channels():
 def find_streams(d):
     error = None
     found_streams = None
+
+    if "channel" not in d:
+        return "No channel selected", None
+
     try:
         channel = d.pop("channel")
         found_streams = hs.channel_manager[channel].find_streams(**d)
     except KeyError:
-        pass
+        error = "Invalid channel"
     except (StreamNotFoundError, StreamNotAvailableError) as e:
-        pass
         error = e
     return error, found_streams
 
