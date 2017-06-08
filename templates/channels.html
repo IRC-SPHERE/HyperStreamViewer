@@ -38,7 +38,7 @@
                                     {% set meta_data = dict(stream_id.meta_data) %}
                                     {% set href = url_for('streams', channel=channel_id, name=stream_id.name, **meta_data) %}
                                     <div class="row">
-                                        <div class="col-xs-6">
+                                        <div class="col-6">
                                         <a class="stream-id-{{ stream_id | u }}" href="{{ href }}">
                                             {{ stream_id}}
                                         </a>
@@ -46,7 +46,7 @@
 
                                         {% set intervals = channel.streams[stream_id].calculated_intervals %}
                                         {% if intervals %}
-                                        <div class="col-xs-6">
+                                        <div class="col-6">
                                             {{ intervals | map('string') | join(", ") }}
                                         </div>
                                         {% endif %}

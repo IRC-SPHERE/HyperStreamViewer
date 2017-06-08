@@ -65,15 +65,16 @@
 
 {% block content %}
     {{ super() }}
-        <div class="container-fluid">
-        <div class="jumbotron alert alert-danger">
-            <h2>HyperStream Data Viewer and Visualisation Dashboard</h2>
-            <p>Issue tracker on <a href="https://github.com/IRC-SPHERE/HyperStreamViewer/issues">GitHub</a></p>
-            <p>{{ hyperstream | string }}</p>
-            <p>Plugin paths: [{{ hyperstream.config.plugins | map(attribute='path') | join(', ') }}]</p>
-       </div>
-    </div>
-
+    <br/>
+{#    <div class="container-fluid">#}
+{#        <div class="jumbotron alert alert-danger">#}
+{#            <h2>HyperStream Data Viewer and Visualisation Dashboard</h2>#}
+{#            <p>Issue tracker on <a href="https://github.com/IRC-SPHERE/HyperStreamViewer/issues">GitHub</a></p>#}
+{#            <p>{{ hyperstream | string }}</p>#}
+{#            <p>Plugin paths: [{{ hyperstream.config.plugins | map(attribute='path') | join(', ') }}]</p>#}
+{#       </div>#}
+{#    </div>#}
+{##}
 {% endblock %}
 
 {% block scripts %}
