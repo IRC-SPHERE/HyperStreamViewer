@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 
+{% block styles %}
+    {{ super() }}
+    <style>
+     table { table-layout: fixed; }
+     table th, table td { overflow: hidden; }
+    </style>
+{% endblock %}
+
 {% block content %}
     {{ super() }}
     <div class="container-fluid">

@@ -32,7 +32,7 @@
                 <p>No streams found. Please select a <a href="{{ url_for('channels') }}">channel</a> first.</p>
             {% endif %}
             {% if error %}
-                <h4>{{ error.__class__.__name__ }}</h4>
+                <h4>Error: {{ error.__class__.__name__ }}</h4>
                 {% if error.message %}
                     <p>{{ error.message }}</p>
                 {% endif %}

@@ -31,7 +31,7 @@ from view_helpers import treelib_to_treeview, custom_sort, custom_format, ListCo
 
 from hyperstream import HyperStream, Tool, TimeInterval
 from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError, \
-    ToolInitialisationError
+    ToolInitialisationError, ChannelNotFoundError
 
 
 hs = HyperStream()
@@ -88,13 +88,13 @@ def find_streams(d):
     found_streams = None
 
     if "channel" not in d:
-        return "No channel selected", None
+        return ChannelNotFoundError("No channel selected"), None
 
     try:
         channel = d.pop("channel")
         found_streams = hs.channel_manager[channel].find_streams(**d)
     except KeyError:
-        error = "Invalid channel"
+        error = ChannelNotFoundError("Invalid channel")
     except (StreamNotFoundError, StreamNotAvailableError) as e:
         error = e
     return error, found_streams

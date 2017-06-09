@@ -5,14 +5,35 @@
                         <p>Parameters:
                         {% if tool.parameters %}
                         </p><br/>
-                            <table class="table table-bordered table-responsive">
-                                <tr><th>Key</th><th>Value</th></tr>
+                            <table class="table table-bordered">
+                                <colgroup>
+                                    <col class="col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                                    <col class="col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                                    <col class="col-sm-10 col-md-10 col-lg-10 col-xl-10">
+                                </colgroup>
+                                <tbody>
+                                <tr><th>Key</th><th>Type</th><th>Value</th></tr>
                             {% for p in tool.parameters %}
                                 <tr>
                                     <td>{{ p.key }}</td>
-                                    <td>{% if p.is_function %}{{ tool | attr(p.key) }}{% else %}{{ p.value }}{% endif %}</td>
+                                {% if p.is_function %}
+                                    <td>function</td>
+                                    <td>{{ tool | attr(p.key) }}</td>
+                                {% else %}
+                                    <td>{{ p.value.__class__.__name__ }}</td>
+                                    <td>
+                                    {% if p.value is mapping %}
+                                        {{ p.value | custom_format('<span style="float: left;">{}</span>') | safe  }}
+                                    {% elif p.value is iterable %}
+                                        [{{ p.value | map('string') | join(', ')  }}]
+                                    {% else %}
+                                        {{ p.value }}
+                                    {% endif %}
+                                    </td>
+                                {% endif %}
                                 </tr>
                             {% endfor %}
+                                </tbody>
                             </table>
                         {% else %}
                             None</p>

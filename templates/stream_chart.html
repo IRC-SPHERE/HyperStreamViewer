@@ -11,6 +11,9 @@
     }
 
     if (window.autoreload) {
+        // TODO: Currently not functional, using Chrome auto-refresh plugin instead
+        // Plan is to do the following:
+        // https://stackoverflow.com/questions/35360341/auto-refresh-json-data-in-highcharts
         setInterval(function () {
             $.getJSON('{{ data }}', function (data) {
                 var chart = $('#container').highcharts();
