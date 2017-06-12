@@ -6,14 +6,7 @@
         "db": "hyperstream"
     },
     "output_path": "output",
-    "plugins": [
-        {
-            "channel_id_prefix": "sphere",
-            "path": "plugins/sphere",
-            "channel_names": ["sphere_channel", "summary_channel"],
-            "has_tools": true,
-            "has_assets": true
-        }],
+    "plugins": [],
     "online_engine": {
         "interval": {
             "start": -60,
