@@ -94,3 +94,8 @@ hyperstream_config_dev.json
 plugins
 sphere_connector_package
 server.py.lprof
+config_beast.sh
+/hyperstream_config_local_sphere.json
+/hyperstream_config_beast.json
+/config_local_sphere.sh
+/hyperstream_config.json.bak*
