@@ -27,7 +27,7 @@ from datetime import datetime
 import simplejson as json
 from StringIO import StringIO
 import csv
-import xml.etree.ElementTree as ET
+# import xml.etree.ElementTree as ET
 import ciso8601
 
 from hyperstream.utils import UTC, MIN_DATE, utcnow, MAX_DATE
@@ -36,51 +36,59 @@ from hyperstream.utils import UTC, MIN_DATE, utcnow, MAX_DATE
 pp = PrettyPrinter(indent=4)
 
 
-def custom_sort(iterable):
-    if iterable is None or isinstance(iterable, Undefined):
+class Filters(object):
+    @staticmethod
+    def custom_sort(iterable):
+        if iterable is None or isinstance(iterable, Undefined):
+            return iterable
+
+        # Do custom sorting of iterable here
+        iterable = sorted(iterable, key=lambda x: len(x.split(".")), reverse=False)
         return iterable
 
-    # Do custom sorting of iterable here
-    iterable = sorted(iterable, key=lambda x: len(x.split(".")), reverse=False)
-    return iterable
+    @staticmethod
+    def custom_format(value, template):
+        if isinstance(value, (list, tuple)):
+            return ''.join(map(lambda x: template.format(x), value))
+        if isinstance(value, dict):
+            return template.format('<pre>' + pp.pformat(value) + '</pre>')
+        return template.format(value)
+
+    @staticmethod
+    def stream_id_to_url(stream_id):
+        return str(stream_id).replace(': ', '-').replace(', ', '-').replace('[', '').replace(']', '').replace('=', '-')\
+            .replace(':', '')
+
+    @staticmethod
+    def treelib_to_treeview(d):
+        root = []
+
+        def transform(node, link=''):
+            nodes = []
+            for item in node:
+                if not link:
+                    link = '/view?'
+                else:
+                    link += '&'
+                text = "{}={}".format(item, node[item]['data'])
+                link += text
+                dd = dict(text=text, href=link)
+                if 'children' in node[item]:
+                    # dd['nodes'] = [dict(text='x', nodes=transform(child)) for child in node[item]['children']]
+                    dd['nodes'] = list(itertools.chain(*[transform(child, link) for child in node[item]['children']]))
+                nodes.append(dd)
+            return nodes
+
+        for v in d['root']['children']:
+            root.append(dict(text="root", nodes=transform(v)))
+
+        return root
 
 
-def custom_format(value, template):
-    if isinstance(value, (list, tuple)):
-        return ''.join(map(lambda x: template.format(x), value))
-    if isinstance(value, dict):
-        return template.format('<pre>' + pp.pformat(value) + '</pre>')
-    return template.format(value)
-
-
-def stream_id_to_url(stream_id):
-    return str(stream_id).replace(': ', '-').replace(', ', '-').replace('[', '').replace(']', '').replace('=', '-')\
-        .replace(':', '')
-
-
-def treelib_to_treeview(d):
-    root = []
-
-    def transform(node, link=''):
-        nodes = []
-        for item in node:
-            if not link:
-                link = '/view?'
-            else:
-                link += '&'
-            text = "{}={}".format(item, node[item]['data'])
-            link += text
-            dd = dict(text=text, href=link)
-            if 'children' in node[item]:
-                # dd['nodes'] = [dict(text='x', nodes=transform(child)) for child in node[item]['children']]
-                dd['nodes'] = list(itertools.chain(*[transform(child, link) for child in node[item]['children']]))
-            nodes.append(dd)
-        return nodes
-
-    for v in d['root']['children']:
-        root.append(dict(text="root", nodes=transform(v)))
-
-    return root
+class Helpers(object):
+    @staticmethod
+    def str2bool(v):
+        return v.lower() in ("yes", "true", "t", "1")
 
 
 class ListConverter(BaseConverter):

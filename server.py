@@ -20,21 +20,20 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 from flask import Flask, render_template, request, jsonify
 from flask_bower import Bower
-from plotting import get_bokeh_plot
 import simplejson as json
 import os
+import logging
 
-from bokeh.util.string import encode_utf8
 
-from view_helpers import treelib_to_treeview, custom_sort, custom_format, ListConverter, DictConverter, \
-    ParameterListConverter, DatetimeConverter, ENDPOINTS, KNOWN_TYPES, stream_id_to_url
+from view_helpers import ListConverter, DictConverter, \
+    ParameterListConverter, DatetimeConverter, ENDPOINTS, KNOWN_TYPES, Helpers, Filters
 
 from hyperstream import HyperStream, Tool, TimeInterval
 from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError, \
     ToolInitialisationError, ChannelNotFoundError
 
 
-hs = HyperStream()
+hs = HyperStream(loglevel=logging.WARN)
 app = Flask(__name__)
 Bower(app)
 app.url_map.converters['list'] = ListConverter
@@ -42,10 +41,10 @@ app.url_map.converters['params_list'] = ParameterListConverter
 app.url_map.converters['dict'] = DictConverter
 app.url_map.converters['datetime'] = DatetimeConverter
 app.jinja_env.add_extension('jinja2.ext.do')
-app.jinja_env.filters['treelib_to_treeview'] = treelib_to_treeview
-app.jinja_env.filters['custom_sort'] = custom_sort
-app.jinja_env.filters['custom_format'] = custom_format
-app.jinja_env.filters['u'] = stream_id_to_url
+app.jinja_env.filters['treelib_to_treeview'] = Filters.treelib_to_treeview
+app.jinja_env.filters['custom_sort'] = Filters.custom_sort
+app.jinja_env.filters['custom_format'] = Filters.custom_format
+app.jinja_env.filters['u'] = Filters.stream_id_to_url
 app.jinja_env.auto_reload = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
@@ -103,11 +102,12 @@ def find_streams(d):
 @app.route("/streams")
 def streams():
     d = dict(request.args.items())
-    autoreload = d.pop('autoreload', False)
+    autoreload = Helpers.str2bool(d.pop('autoreload', "False"))
     default_view = d.pop('default_view', None)
+    force_calculation = Helpers.str2bool(d.pop('force_calculation', "False"))
     error, found_streams = find_streams(d)
     return render_template("streams.html", hyperstream=hs, streams=found_streams, error=error,
-                           default_view=default_view, autoreload=autoreload)
+                           default_view=default_view, autoreload=autoreload, force_calculation=force_calculation)
 
 
 stream_route = "/stream/<channel>/<name>/<dict:meta_data>/"
@@ -212,37 +212,6 @@ def views():
                     errors.append((fname, e))
 
     return render_template("views.html", hyperstream=hs, views=files, errors=errors)
-
-
-@app.route("/view")
-def view():
-    streams = hs.channel_manager.mongo.find_streams(**dict(request.args.items()))
-    # return render_template("view.html", streams=streams)
-    x = list(range(0, 100))
-
-    plot = get_bokeh_plot(title="Polynomial", x=x, y=list(map(lambda xx: xx ** 2, x)))
-
-    html = render_template(
-        'view.html',
-        **plot
-    )
-    return encode_utf8(html)
-
-
-@app.route("/polynomial")
-def polynomial():
-    """ Very simple embedding of a polynomial chart
-    """
-    # Create a polynomial line graph with those arguments
-    x = list(range(0, 100))
-
-    plot = get_bokeh_plot(title="Polynomial", x=x, y=list(map(lambda xx: xx ** 2, x)))
-
-    html = render_template(
-        'embed.html',
-        **plot
-    )
-    return encode_utf8(html)
 
 
 if __name__ == "__main__":

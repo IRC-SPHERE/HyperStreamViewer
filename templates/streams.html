@@ -6,10 +6,9 @@
         <div class="col-lg-12">
             {% if streams %}
                 {% set compact = streams | length > 1 %}
-{#                {% set compact = false %}#}
                 <div class="container-fluid">
                 {% for stream_id, stream in streams.items() %}
-                    {% if stream.calculated_intervals and stream.window().last() %}
+                    {% if stream.calculated_intervals and stream.window(force_calculation=force_calculation).last() %}
                         {% if compact %}
                         <div class="col-sm-6">
                         {% endif %}
