@@ -1,5 +1,4 @@
 appdirs==1.4.3
-bokeh==0.12.2
 click==6.7
 Flask==0.12.1
 Flask-Bower==1.2.1
