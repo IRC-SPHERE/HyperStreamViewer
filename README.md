@@ -5,6 +5,11 @@
 Web-app dashboard and visualisation for viewing [HyperStream](https://github.com/IRC-SPHERE/HyperStream) output. Hyperstream is a large-scale, flexible and robust software package for processing streaming data.
 
 # Installation #
+## Docker images ##
+If you do not want to install all the packages separately you can use our Docker bundle available [here](https://github.com/IRC-SPHERE/Hyperstream-Dockerfiles).
+
+## Local machine ##
+
 
 ``` Bash
 git clone git@github.com:IRC-SPHERE/HyperStreamViewer.git
