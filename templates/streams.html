@@ -7,7 +7,7 @@
             {% if streams %}
                 {% set compact = streams | length > 1 %}
                 <div class="container-fluid">
-                {% for stream_id, stream in streams.items() %}
+                {% for stream_id, stream in streams %}
                     {% if stream.calculated_intervals and stream.window(force_calculation=force_calculation).last() %}
                         {% if compact %}
                         <div class="col-sm-6">
@@ -62,11 +62,20 @@
     </script>
     {% endif %}
 
+    {% if default_zoom %}
+    <script type="text/javascript">
+    window.defaultChartZoom = {
+        'false': '{{ default_zoom }}',
+        'true': '{{ default_zoom }}'
+    };
+    debugger;
+    </script>
+    {% endif %}
 
     <script type="text/javascript" src="{{ url_for('.static', filename='highchartsHelpers.js') }}"></script>
 
     {% if streams %}
-    {% for stream_id, stream in streams.items() %}
+    {% for stream_id, stream in streams %}
         {% if stream.calculated_intervals %}
             {% set data = url_for('stream', channel=stream.channel.channel_id, name=stream.stream_id.name, meta_data=dict(stream.stream_id.meta_data), mimetype='json', func='items') %}
             {% include "stream_chart.html" %}
@@ -76,10 +85,11 @@
             // Switch between chart types
             $('#tab-chart-{{ stream_id | u }}').find('input').on('change', function() {
                 chartType = $('input[name=chart-type]:checked', '#tab-chart-{{ stream_id | u }}').val();
+                chartZoom = window.defaultChartZoom;
                 chartData = chartType === 'heatmap' ? heatmapData : data;
                 seriesOptions = [];
                 createSeries(chartData, chartType, numVariables !== 1);
-                createChart(chartType, seriesOptions, '{{ stream_id | u }}', '{{ stream_id.name }}', '{{ dict(stream_id.meta_data) | tojson }}');
+                createChart(chartType, chartZoom, seriesOptions, '{{ stream_id | u }}', '{{ stream_id.name }}', '{{ dict(stream_id.meta_data) | tojson }}');
             });
             </script>
         {% endif %}

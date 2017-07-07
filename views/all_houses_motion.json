@@ -1,0 +1,9 @@
+{
+    "channel": "summary",
+    "name": "env_per_uid_field_agg_perc",
+    "meta_data": {
+        "env_field": "motion"
+    },
+    "default_view": "column",
+    "default_zoom": "All"
+}

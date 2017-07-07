@@ -1,0 +1,8 @@
+{
+    "channel": "summary",
+    "name": "env_per_uid_field_agg_perc",
+    "meta_data": {
+        "env_field": "humidity"
+    },
+    "default_view": "line"
+}

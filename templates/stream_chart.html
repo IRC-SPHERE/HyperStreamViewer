@@ -53,10 +53,11 @@
         // debugger;
 
         chartType = window.defaultChartType[numVariables !== 1];
+        chartZoom = window.defaultChartZoom[numVariables !== 1];
         chartData = chartType === 'heatmap' ? heatmapData : data;
 
         show(availableChartTypes, chartType, '{{ stream_id | u }}');
         createSeries(chartData, chartType, numVariables !== 1);
-        createChart(chartType, seriesOptions, '{{ stream_id | u }}', '{{ stream_id.name }}', '{{ dict(stream_id.meta_data) | tojson }}');
+        createChart(chartType, chartZoom, seriesOptions, '{{ stream_id | u }}', '{{ stream_id.name }}', '{{ dict(stream_id.meta_data) | tojson }}');
     });
     </script>

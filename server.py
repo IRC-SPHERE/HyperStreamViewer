@@ -92,6 +92,8 @@ def find_streams(d):
     try:
         channel = d.pop("channel")
         found_streams = hs.channel_manager[channel].find_streams(**d)
+        found_streams = sorted(found_streams.items(), key=lambda x: x[0])
+
     except KeyError:
         error = ChannelNotFoundError("Invalid channel")
     except (StreamNotFoundError, StreamNotAvailableError) as e:
@@ -104,10 +106,13 @@ def streams():
     d = dict(request.args.items())
     autoreload = Helpers.str2bool(d.pop('autoreload', "False"))
     default_view = d.pop('default_view', None)
+    default_zoom = d.pop('default_zoom', None)
     force_calculation = Helpers.str2bool(d.pop('force_calculation', "False"))
     error, found_streams = find_streams(d)
-    return render_template("streams.html", hyperstream=hs, streams=found_streams, error=error,
-                           default_view=default_view, autoreload=autoreload, force_calculation=force_calculation)
+    return render_template(
+        "streams.html", hyperstream=hs, streams=found_streams, error=error,
+        default_zoom=default_zoom, default_view=default_view,
+        autoreload=autoreload, force_calculation=force_calculation)
 
 
 stream_route = "/stream/<channel>/<name>/<dict:meta_data>/"

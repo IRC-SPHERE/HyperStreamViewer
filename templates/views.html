@@ -11,7 +11,7 @@
             <div class="col-sm-12">
                 {% if views %}
                     {% for v in views %}
-                        {% set url = url_for('streams', default_view=v.data.default_view, channel=v.data.channel, name=v.data.name, **v.data.meta_data) %}
+                        {% set url = url_for('streams', default_view=v.data.default_view, default_zoom=v.data.default_zoom, channel=v.data.channel, name=v.data.name, **v.data.meta_data) %}
                         <p><strong>{{ v.filename }}: </strong><a href="{{ url }}">{{ url }}</a></p>
                     {% endfor %}
                 {% endif %}

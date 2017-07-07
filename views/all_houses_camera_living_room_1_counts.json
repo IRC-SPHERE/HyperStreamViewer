@@ -1,0 +1,8 @@
+{
+    "channel": "summary",
+    "name": "vid_per_uid_counts_agg_total",
+    "meta_data": {
+        "camera": "living room 1:A"
+    },
+    "default_view": "line"
+}

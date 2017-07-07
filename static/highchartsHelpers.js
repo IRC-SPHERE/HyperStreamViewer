@@ -8,14 +8,62 @@ var chartData;
 var timestamps;
 var heatmapData;  // different format to other charts
 var chartType;
+var chartZoom;
 var numVariables;  // for multivariate data, how many variables
 var categories;    // categories for multivariate data
+
+var availableRanges = {
+    '1h': {
+        type: 'hour',
+        count: 1,
+        text: '1h'
+    },
+    '6h': {
+        type: 'hour',
+        count: 6,
+        text: '6h'
+    },
+    '12h': {
+        type: 'hour',
+        count: 12,
+        text: '12h'
+    },
+    '1D': {
+        type: 'day',
+        count: 1,
+        text: '1D'
+    },
+    '7D': {
+        type: 'week',
+        count: 1,
+        text: '7D'
+    },
+    '1M': {
+        type: 'month',
+        count: 1,
+        text: '1M'
+    },
+    'All': {
+        type: 'all',
+        count: 1,
+        text: 'All'
+    }
+};
+
 
 // default chart type for multivariate and univariate charts
 if (typeof(window.defaultChartType) === 'undefined') {
     window.defaultChartType = {
         'true': 'line',
         'false': 'line'
+    };
+}
+
+// default zoom level for multivariate and univariate charts
+if (typeof(window.defaultChartZoom) === 'undefined') {
+    window.defaultChartZoom = {
+        'true': '1D',
+        'false': '1D'
     };
 }
 
@@ -83,40 +131,48 @@ function createSeries(data, type, multivariate, i) {
     }
 }
 
-function createRangeSelector() {
-    'use strict'; return {
-        buttons: [{
-            type: 'hour',
-            count: 1,
-            text: '1h'
-        }, {
-            type: 'hour',
-            count: 6,
-            text: '6h'
-        }, {
-            type: 'hour',
-            count: 12,
-            text: '12h'
-        }, {
-            type: 'day',
-            count: 1,
-            text: '1D'
-        }, {
-            type: 'week',
-            count: 1,
-            text: '7D'
-        }, {
-            type: 'all',
-            count: 1,
-            text: 'All'
-        }],
-        selected: 3,
+function createRangeSelector(chartZoom) {
+    'use strict';
+
+    return {
+        buttons: _.values(availableRanges),
+        selected: _.indexOf(_.keys(availableRanges), chartZoom),
         inputEnabled: false
     };
+
+    // return {
+    //     buttons: [{
+    //         type: 'hour',
+    //         count: 1,
+    //         text: '1h'
+    //     }, {
+    //         type: 'hour',
+    //         count: 6,
+    //         text: '6h'
+    //     }, {
+    //         type: 'hour',
+    //         count: 12,
+    //         text: '12h'
+    //     }, {
+    //         type: 'day',
+    //         count: 1,
+    //         text: '1D'
+    //     }, {
+    //         type: 'week',
+    //         count: 1,
+    //         text: '7D'
+    //     }, {
+    //         type: 'all',
+    //         count: 1,
+    //         text: 'All'
+    //     }],
+    //     selected: 3,
+    //     inputEnabled: false
+    // };
 }
 
-function createChart(chartType, seriesOptions, streamId, name, metaData) {'use strict';
-    'use strict'; var chartDefinition = {
+function createChart(chartType, chartZoom, seriesOptions, streamId, name, metaData) {'use strict';
+    var chartDefinition = {
         title: {
             text: name
         },
@@ -142,7 +198,7 @@ function createChart(chartType, seriesOptions, streamId, name, metaData) {'use s
         credits: {
             enabled: false
         },
-        rangeSelector: createRangeSelector()
+        rangeSelector: createRangeSelector(chartZoom)
     };
 
     if (chartType !== 'heatmap') {
