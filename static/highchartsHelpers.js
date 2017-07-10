@@ -109,16 +109,30 @@ var globalSeriesOptions = {
     }
 };
 
-function createSeries(data, type, multivariate, i) {
+function createSeries(data, type, multivariate, i, name) {
     'use strict'; if (multivariate) {
         if (type === 'heatmap') {
             // set multivariate to false since it's a single series for heatmap
             createSeries(heatmapData, 'heatmap', false);
         } else {
+            var timestamps = _.pluck(data, 0);
+            var values = _.pluck(data, 1);
+            var unzipped = _.unzip(values);
+
+            if (unzipped.length === 0) {
+                // The values may be in a dict
+                var keys = _.uniq(_.flatten(_.map(values, _.keys)));
+
+                _.each(keys, function(key, i) {
+                    var column = _.pluck(values, key);
+                    createSeries(_.zip(timestamps, column), type, false, i, key);
+                });
+            }
+
             // Create series for multi-line plots
-            _.each(_.unzip(_.pluck(data, 1)), function(column, i) {
+            _.each(unzipped, function(column, i) {
                 // recursive call to create each series
-                createSeries(_.zip(_.pluck(data, 0), column), type, false, i);
+                createSeries(_.zip(timestamps, column), type, false, i);
             });
         }
     } else {
@@ -126,7 +140,8 @@ function createSeries(data, type, multivariate, i) {
         var series = jQuery.extend(true, {}, globalSeriesOptions[type]);
         series.data = data;
         i = (typeof i === 'undefined') ? 1 : i;
-        series.name = i;
+        name = (typeof name === 'undefined') ? i : name;
+        series.name = name;
         seriesOptions[i - 1] = series;
     }
 }

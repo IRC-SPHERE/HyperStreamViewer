@@ -57,7 +57,7 @@ class Filters(object):
     @staticmethod
     def stream_id_to_url(stream_id):
         return str(stream_id).replace(': ', '-').replace(', ', '-').replace('[', '').replace(']', '').replace('=', '-')\
-            .replace(':', '')
+            .replace(':', '').replace(' ', '-')
 
     @staticmethod
     def treelib_to_treeview(d):
