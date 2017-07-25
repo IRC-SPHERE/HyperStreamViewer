@@ -1,6 +1,10 @@
 <div class="panel panel-default">
     <div class="panel-heading">
+        {% if compact %}
+        <a href="{{ url_for('streams', channel=stream.channel.channel_id, name=stream_id.name, default_view=default_view, default_zoom=default_zoom, **dict(stream_id.meta_data)) }}"><h4 class="panel-title">{{ stream_id.name }}</h4></a>
+        {% else %}
         <h4 class="panel-title">{{ stream_id.name }}</h4>
+        {% endif %}
     </div>
 
     <div class="panel-body">

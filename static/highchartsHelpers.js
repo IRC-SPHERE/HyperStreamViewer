@@ -154,36 +154,6 @@ function createRangeSelector(chartZoom) {
         selected: _.indexOf(_.keys(availableRanges), chartZoom),
         inputEnabled: false
     };
-
-    // return {
-    //     buttons: [{
-    //         type: 'hour',
-    //         count: 1,
-    //         text: '1h'
-    //     }, {
-    //         type: 'hour',
-    //         count: 6,
-    //         text: '6h'
-    //     }, {
-    //         type: 'hour',
-    //         count: 12,
-    //         text: '12h'
-    //     }, {
-    //         type: 'day',
-    //         count: 1,
-    //         text: '1D'
-    //     }, {
-    //         type: 'week',
-    //         count: 1,
-    //         text: '7D'
-    //     }, {
-    //         type: 'all',
-    //         count: 1,
-    //         text: 'All'
-    //     }],
-    //     selected: 3,
-    //     inputEnabled: false
-    // };
 }
 
 function createChart(chartType, chartZoom, seriesOptions, streamId, name, metaData) {'use strict';
