@@ -33,7 +33,7 @@ from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, St
     ToolInitialisationError, ChannelNotFoundError
 
 
-hs = HyperStream(loglevel=logging.WARN)
+hs = HyperStream(loglevel=logging.INFO)
 app = Flask(__name__)
 Bower(app)
 app.url_map.converters['list'] = ListConverter
@@ -70,16 +70,24 @@ def meta_data():
 
 @app.route("/channels")
 def channels():
+    channel_id = None
+    channel_streams = None
+    descr_chann = None
+
     if 'channel_id' in request.args:
         channel_id = request.args['channel_id']
         channel = hs.channel_manager[channel_id]
         s = sorted([(stream_id, str(stream_id)) for stream_id in channel.streams.keys()], key=lambda x: x[1])
         channel_streams = [x[0] for x in s]
     else:
-        channel_id = None
-        channel_streams = None
+        avail_chann = hs.channel_manager.values()
+        avail_chann.sort(key=lambda x: (x.channel_id, x.__class__.__name__))
+        descr_chann = [{'id':c.channel_id, 'name':c.__class__.__name__,
+            'len':len(c.streams)} for c in avail_chann]
 
-    return render_template("channels.html", hyperstream=hs, channel_id=channel_id, channel_streams=channel_streams)
+    return render_template("channels.html", hyperstream=hs,
+            channel_id=channel_id, channel_streams=channel_streams,
+            channels_descr=descr_chann)
 
 
 def find_streams(d):

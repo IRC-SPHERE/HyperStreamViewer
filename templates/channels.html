@@ -106,17 +106,17 @@
                     </div>
                 </div>
             {% else %}
-                {% for channel in hyperstream.channel_manager.values() | sort(attribute='channel_id') | sort(attribute='__class__.__name__') %}
+                {% for channel in channels_descr %}
                 <div class="col-lg-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4 class="panel-title">
-                                <a href="{{ url_for('channels', channel_id=channel.channel_id) }}">{{ channel.channel_id }}</a>
+                                <a href="{{ url_for('channels', channel_id=channel.id) }}">{{ channel.id }}</a>
                             </h4>
                         </div>
                         <div class="panel-body">
-                            <p><strong>Type: </strong>{{ channel.__class__.__name__ }}</p>
-                            <p><strong>Number of streams:</strong> {{ channel.streams | length }}</p>
+                            <p><strong>Type: </strong>{{ channel.name }}</p>
+                            <p><strong>Number of streams:</strong> {{ channel.len }}</p>
                         </div>
                     </div>
                 </div>
