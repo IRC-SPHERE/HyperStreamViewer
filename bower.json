@@ -28,6 +28,7 @@
     "underscore": "^1.8.3",
     "highcharts": "^5.0.12",
     "highstock": "highstock-release#^5.0.12",
-    "tether": "^1.4.0"
+    "tether": "^1.4.0",
+    "datatables": "^1.10.16"
   }
 }
