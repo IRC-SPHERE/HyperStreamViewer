@@ -18,7 +18,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 from flask_bower import Bower
 import simplejson as json
 import os
@@ -102,57 +102,57 @@ def channels():
             channels_descr=descr_chann)
 
 
+@app.route("/mpn_channels/<channel_id>")
+def channel_id_json(channel_id):
+    channel = hs.channel_manager[channel_id]
+    s = sorted([(stream_id, str(stream_id)) for stream_id in channel.streams.keys()], key=lambda x: x[1])
+    channel_streams = [x[0] for x in s]
+
+    columns = ['s.name', 's.end', 's.meta_data']
+    for stream in channel_streams:
+        for key, value in stream.meta_data:
+            if key not in columns:
+                columns.append(key)
+
+    table = []
+    for stream in channel_streams:
+        row = []
+        for key in columns:
+            if key == 's.name':
+                row.append(stream.name)
+            elif key == 's.c_id':
+                row.append(channel_id)
+            elif key == 's.meta_data':
+                row.append(stream.meta_data)
+            elif key == 's.end':
+                aux = channel.streams[stream].calculated_intervals.end
+                row.append(str(aux or ''))
+            else:
+                metadata = {key: value for key, value in stream.meta_data}
+                value = '' if key not in metadata else metadata[key]
+                row.append(value)
+        table.append(row)
+    columns = [[x] for x in columns]
+    return jsonify(dict(columns=columns, data=table))
+
+
 @app.route("/mpn_channels")
 def mpn_channels():
     channel_id = None
-    channel_streams = None
+    channel_name = None
     descr_chann = None
-    table = None
 
     if 'channel_id' in request.args:
         channel_id = request.args['channel_id']
-        channel = hs.channel_manager[channel_id]
-        s = sorted([(stream_id, str(stream_id)) for stream_id in channel.streams.keys()], key=lambda x: x[1])
-        channel_streams = [x[0] for x in s]
-
-        table = {}
-        table['s.name'] = []
-        table['s.c_id'] = []
-        table['s.meta_data'] = []
-        table['s.start'] = []
-        table['s.end'] = []
-        for stream in channel_streams:
-            for key, value in stream.meta_data:
-                if key not in table:
-                    table[key] = []
-
-        for stream in channel_streams:
-            for key in table.keys():
-                if key == 's.name':
-                    table[key].append(stream.name)
-                elif key == 's.c_id':
-                    table[key].append(channel_id)
-                elif key == 's.meta_data':
-                    table[key].append(stream.meta_data)
-                elif key == 's.start':
-                    aux = channel.streams[stream].calculated_intervals.start
-                    table[key].append(str(aux or ''))
-                elif key == 's.end':
-                    aux = channel.streams[stream].calculated_intervals.end
-                    table[key].append(str(aux or ''))
-                else:
-                    metadata = {key: value for key, value in stream.meta_data}
-                    value = '' if key not in metadata else metadata[key]
-                    table[key].append(value)
+        channel_name = hs.channel_manager[channel_id].__class__.__name__
     else:
         avail_chann = hs.channel_manager.values()
         avail_chann.sort(key=lambda x: (x.channel_id, x.__class__.__name__))
         descr_chann = [{'id':c.channel_id, 'name':c.__class__.__name__,
             'len':len(c.streams)} for c in avail_chann]
 
-    return render_template("mpn_channels.html", hyperstream=hs,
-            channel_id=channel_id, channel_streams=channel_streams,
-            channels_descr=descr_chann, table=table)
+    return render_template("mpn_channels.html", channel_id=channel_id,
+            channel_name=channel_name, channels_descr=descr_chann)
 
 
 def find_streams(d):

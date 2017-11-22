@@ -19,43 +19,18 @@
   {{ super() }}
   <div class="container-fluid">
       {% if channel_id %}
-        {% set channel = hyperstream.channel_manager[channel_id] %}
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
               {{ channel_id }}
             </h4>
-            <p>{{ channel.__class__.__name__ }}</p>
+            <p>{{ channel_name }}</p>
             <p></p>
           </div>
           <div class="panel">
             <div class="panel-body" width="100%">
               <div id="contentArea" class="clusterize-content" width="100%">
-                <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                   <thead>
-                     <tr>
-                       {% for key in table.keys() %}
-                         {% if key not in ['s.meta_data', 's.c_id'] %}
-                           <th>{{ key }}</th>
-                         {% endif %}
-                       {% endfor %}
-                     </tr>
-                   </thead>
-                   <tbody>
-                     {% for i in range(table.itervalues().next() | length) %}
-                       {% set meta_data = dict(table['s.meta_data'][i]) %}
-                       {% set href = url_for('streams', channel=channel_id, name=table['s.name'][i], **meta_data) %}
-                       <tr>
-                         {% for key in table.keys() %}
-                           {% if key == 's.name' %}
-                             <td><a href="{{ href }}">{{ table[key][i] }}</a></td>
-                           {% elif key not in ['s.meta_data', 's.c_id'] %}
-                             <td>{{ table[key][i] }}</td>
-                           {% endif %}
-                         {% endfor %}
-                       </tr>
-                     {% endfor %}
-                   </tbody>
+                <table id="displayTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
                 </table>
               </div>
           </div>
@@ -85,7 +60,7 @@
   <script type="text/javascript" src="{{ url_for('bower.static', filename='clusterize/clusterize.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('bower.static', filename='datatables/media/js/jquery.dataTables.min.js') }}"></script>
 
-  {% if channel_streams %}
+  {% if channel_id %}
   <script type="text/javascript">
     if (true) {
       // Temporarily disable clusterize
@@ -100,9 +75,22 @@
   </script>
 
   <script type="text/javascript">
-    $(document).ready(function() {
-        $('#example').DataTable();
-    } );
+    $( document ).ready( function( $ ) {
+      $.ajax({
+              "url": 'mpn_channels/{{ channel_id }}',
+              "success": function(json) {
+                var tableHeaders;
+                $.each(json.columns, function(i, val){
+                    tableHeaders += "<th>" + val + "</th>";
+                });
+
+                $("#displayTable").append('<thead><tr>' + tableHeaders + '</tr></thead>')
+
+                $('#displayTable').dataTable(json);
+              },
+              "dataType": "json"
+          });
+    });
   </script>
   {% endif %}
 {% endblock %}
