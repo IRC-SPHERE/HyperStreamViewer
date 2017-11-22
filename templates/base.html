@@ -26,7 +26,7 @@
 
 {% block navbar %}
      {% set page_index = {'_': 0} %}
-     {% set pages = ['plates', 'meta_data', 'channels', 'streams', 'workflows', 'tools', 'views'] %}
+     {% set pages = ['plates', 'meta_data', 'channels', 'streams', 'workflows', 'tools', 'views', 'mpn_channels'] %}
 {#  'factors',  #}
      {% for page in pages %}
         {% if page in request.base_url %}

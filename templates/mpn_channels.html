@@ -2,17 +2,15 @@
 
 {% block styles %}
   {{ super() }}
-  <link rel="stylesheet" type="text/css" href="{{ url_for('bower.static', filename='clusterize/clusterize.css') }}" />
+  <link rel="stylesheet" type="text/css"
+  href="{{ url_for('bower.static', filename='clusterize/clusterize.css') }}" />
+  <link rel="stylesheet" type="text/css"
+  href="{{ url_for('bower.static', filename='datatables/media/css/jquery.dataTables.min.css') }}" />
   <style>
   .table-sm tr, th, td {
     height : 15px;
     font-size: small;
     margin: 0 0 0 0;
-  }
-
-  .clusterize-scroll {
-    max-height: 400px;
-    overflow: auto;
   }
   </style>
 {% endblock %}
@@ -31,9 +29,9 @@
             <p></p>
           </div>
           <div class="panel">
-            <div class="panel-body clusterize-scroll" id="scrollArea">
-              <div id="contentArea" class="clusterize-content">
-                <table id="example" class="table table-striped table-bordered table-fixed" cellspacing="0" width="100%">
+            <div class="panel-body" width="100%">
+              <div id="contentArea" class="clusterize-content" width="100%">
+                <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
                    <thead>
                      <tr>
                        {% for key in table.keys() %}
@@ -46,7 +44,7 @@
                    <tbody>
                      {% for i in range(table.itervalues().next() | length) %}
                        {% set meta_data = dict(table['s.meta_data'][i]) %}
-                       {% set href = url_for('streams', channel=table['s.c_id'][i], name=table['s.name'][i], **meta_data) %}
+                       {% set href = url_for('streams', channel=channel_id, name=table['s.name'][i], **meta_data) %}
                        <tr>
                          {% for key in table.keys() %}
                            {% if key == 's.name' %}
@@ -60,7 +58,6 @@
                    </tbody>
                 </table>
               </div>
-            </div>
           </div>
         </div>
       {% else %}
@@ -85,29 +82,27 @@
 
 {% block scripts %}
   {{ super() }}
-{#    <script type="text/javascript" src="{{ url_for('bower.static', filename='list.js/dist/list.js') }}"></script>#}
   <script type="text/javascript" src="{{ url_for('bower.static', filename='clusterize/clusterize.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('bower.static', filename='datatables/media/js/jquery.dataTables.min.js') }}"></script>
 
   {% if channel_streams %}
   <script type="text/javascript">
-if (false) {
-  // Temporarily disable clusterize
-  var clusterize = new Clusterize({
-    //rows: filterRows(rows),
-   scrollId: 'scrollArea',
-   contentId: 'contentArea',
-   rowsInBlock: 200
-  }
-  );
-}
+    if (true) {
+      // Temporarily disable clusterize
+      var clusterize = new Clusterize({
+        //rows: filterRows(rows),
+       scrollId: 'scrollArea',
+       contentId: 'contentArea',
+       rowsInBlock: 200
+      }
+      );
+    }
+  </script>
 
+  <script type="text/javascript">
+    $(document).ready(function() {
+        $('#example').DataTable();
+    } );
   </script>
   {% endif %}
-
-{# FIXME why this does not work?
-{#  <script type="text/javascript">
-{#    $(document).ready(function() {
-{#        $('#example').DataTable();
-{#    } );
-{#  </script>
 {% endblock %}
