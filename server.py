@@ -105,6 +105,7 @@ def channels():
 @app.route("/mpn_channels/<channel_id>")
 def channel_id_json(channel_id):
     channel = hs.channel_manager[channel_id]
+    channel_name = channel.__class__.__name__
     s = sorted([(stream_id, str(stream_id)) for stream_id in channel.streams.keys()], key=lambda x: x[1])
     channel_streams = [x[0] for x in s]
 
@@ -119,7 +120,9 @@ def channel_id_json(channel_id):
         row = []
         for key in columns:
             if key == 's.name':
-                row.append(stream.name)
+		href = url_for('streams', channel=channel_id,
+			       name=stream.name, **dict(stream.meta_data))
+                row.append("<a href='{}'>{}</a>".format(href, stream.name))
             elif key == 's.c_id':
                 row.append(channel_id)
             elif key == 's.meta_data':
