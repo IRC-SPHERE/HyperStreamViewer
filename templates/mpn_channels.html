@@ -12,6 +12,24 @@
     font-size: small;
     margin: 0 0 0 0;
   }
+  #loader {
+    color: gray;
+	text-align: center;
+    font-weight: bold;
+  }
+  .loader_icon {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #636363; /* Blue */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 2s linear infinite;
+	margin: auto;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
   </style>
 {% endblock %}
 
@@ -30,6 +48,7 @@
           <div class="panel">
             <div class="panel-body" width="100%">
               <div id="contentArea" class="clusterize-content" width="100%">
+				<div id="loader">Loading...<div class="loader_icon"></div></div>
                 <table id="displayTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
                 </table>
               </div>
@@ -88,7 +107,13 @@
 
                 $('#displayTable').dataTable(json);
               },
-              "dataType": "json"
+              "dataType": "json",
+			  "beforeSend": function() {
+				$('#loader').show();
+			  },
+			  "complete": function() {
+				$('#loader').hide();
+			  }
           });
     });
   </script>

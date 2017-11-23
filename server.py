@@ -109,7 +109,7 @@ def channel_id_json(channel_id):
     s = sorted([(stream_id, str(stream_id)) for stream_id in channel.streams.keys()], key=lambda x: x[1])
     channel_streams = [x[0] for x in s]
 
-    columns = ['s.name', 's.end', 's.meta_data']
+    columns = ['stream.name', 'stream.end']
     for stream in channel_streams:
         for key, value in stream.meta_data:
             if key not in columns:
@@ -119,19 +119,15 @@ def channel_id_json(channel_id):
     for stream in channel_streams:
         row = []
         for key in columns:
-            if key == 's.name':
+            if key == 'stream.name':
 		href = url_for('streams', channel=channel_id,
 			       name=stream.name, **dict(stream.meta_data))
                 row.append("<a href='{}'>{}</a>".format(href, stream.name))
-            elif key == 's.c_id':
-                row.append(channel_id)
-            elif key == 's.meta_data':
-                row.append(stream.meta_data)
-            elif key == 's.end':
+            elif key == 'stream.end':
                 aux = channel.streams[stream].calculated_intervals.end
                 row.append(str(aux or ''))
             else:
-                metadata = {key: value for key, value in stream.meta_data}
+                metadata = dict(stream.meta_data)
                 value = '' if key not in metadata else metadata[key]
                 row.append(value)
         table.append(row)
