@@ -25,7 +25,7 @@ import os
 import logging
 
 
-from view_helpers import ListConverter, DictConverter, \
+from view_helpers import ListConverter, DictConverter, exception_json, \
     ParameterListConverter, DatetimeConverter, ENDPOINTS, KNOWN_TYPES, Helpers, Filters
 
 from hyperstream import HyperStream, Tool, TimeInterval
@@ -33,7 +33,7 @@ from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, St
     ToolInitialisationError, ChannelNotFoundError
 
 
-hs = HyperStream(loglevel=logging.INFO)
+hs = HyperStream(loglevel=logging.INFO, file_logger={'path': '/tmp/HyperStreamViewer'})
 app = Flask(__name__)
 Bower(app)
 app.url_map.converters['list'] = ListConverter
@@ -102,8 +102,9 @@ def channels():
             channels_descr=descr_chann)
 
 
-@app.route("/mpn_channels/<channel_id>")
-def channel_id_json(channel_id):
+@app.route("/mpn_channels/<channel_id>/")
+@app.route("/mpn_channels/<channel_id>/<string:mimetype>/")
+def channel_id(channel_id, mimetype='json'):
     channel = hs.channel_manager[channel_id]
     channel_name = channel.__class__.__name__
     s = sorted([(stream_id, str(stream_id)) for stream_id in channel.streams.keys()], key=lambda x: x[1])
@@ -132,7 +133,7 @@ def channel_id_json(channel_id):
                 row.append(value)
         table.append(row)
     columns = [[x] for x in columns]
-    return jsonify(dict(columns=columns, data=table))
+    return ENDPOINTS[mimetype](dict(columns=columns, data=table))
 
 
 @app.route("/mpn_channels")
@@ -186,9 +187,7 @@ def streams():
         default_zoom=default_zoom, default_view=default_view,
         autoreload=autoreload, force_calculation=force_calculation)
 
-
 stream_route = "/stream/<channel>/<name>/<dict:meta_data>/"
-
 
 @app.route(stream_route + "<string:func>/<string:mimetype>/")
 @app.route(stream_route + "<string:func>+<params_list:parameters>/<string:mimetype>/")
@@ -204,11 +203,9 @@ def stream(channel, name, meta_data, mimetype, func, parameters=None, start=None
             window = stream.window()
 
     except (KeyError, TypeError, MultipleStreamsFoundError, StreamNotFoundError, StreamNotAvailableError) as e:
-        return jsonify({
-            'exception': str(type(e)),
-            'message': e.message,
-            'data': dict(channel=channel, name=name, meta_data=meta_data, start=start, end=end)
-        })
+        return exception_json(e, dict(channel=channel, name=name,
+                                      meta_data=meta_data, start=start,
+                                      end=end))
 
     try:
         if hasattr(window, func):
@@ -220,14 +217,16 @@ def stream(channel, name, meta_data, mimetype, func, parameters=None, start=None
         else:
             return jsonify({'exception': "Function not available", "message": func})
     except (KeyError, TypeError) as e:
-        return jsonify({'exception': str(type(e)), 'message': e.message, 'data': (func, parameters)})
+        return exception_json(e, (func, parameters))
 
     try:
         return ENDPOINTS[mimetype](data)
     except KeyError as e:
-        return jsonify({'exception': str(type(e)), 'message': "Endpoint not found", 'data': mimetype})
+        # FIXME is the error message informative?
+        # The previous message was: 'Endpoint not found'
+        return exception_json(e, mimetype)
     except TypeError as e:
-        return jsonify({'exception': str(type(e)), 'message': e.message, 'data': (func, parameters, str(list(data)))})
+        return exception_json(e, (func, parameters, str(list(data))))
 
 
 @app.route("/factors")

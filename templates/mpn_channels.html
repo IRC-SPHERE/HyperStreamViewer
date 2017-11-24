@@ -96,7 +96,7 @@
   <script type="text/javascript">
     $( document ).ready( function( $ ) {
       $.ajax({
-              "url": 'mpn_channels/{{ channel_id }}',
+              "url": 'mpn_channels/{{ channel_id }}/json/',
               "success": function(json) {
                 var tableHeaders;
                 $.each(json.columns, function(i, val){
