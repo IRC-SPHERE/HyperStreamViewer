@@ -10,14 +10,37 @@ If you do not want to install all the packages separately you can use our Docker
 
 ## Local machine ##
 
-
 ``` Bash
 git clone git@github.com:IRC-SPHERE/HyperStreamViewer.git
 cd HyperStreamViewer
 virtuenv venv
 . venv/bin/activate
 pip install -r requirements.txt
+```
+
+It is also necessary to install some javascript libraries using bower. In case
+you do not have bower installed follow the next steps (for Debian based OS):
+
+``` Bash
+sudo aptitude install npm nodejs-legacy
+sudo npm install -g bower
+bower install
+```
+
+It is necessary to create a file hyperstream_config.json
+
+*TODO* Fill this section
+
+To run HyperStream with the SPHERE plugins it is the sphere plugins in the
+current folder
+
+    sphere-hyperstream/SPHERE-HyperStream/sphere_plugins
+
+Now you can start the server in the port 5000
+
+```
 python server.py
+
 ```
 
 # License #

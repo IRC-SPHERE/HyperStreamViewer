@@ -33,7 +33,7 @@ from hyperstream.utils import MultipleStreamsFoundError, StreamNotFoundError, St
     ToolInitialisationError, ChannelNotFoundError
 
 
-hs = HyperStream(loglevel=logging.INFO)
+hs = HyperStream(loglevel=logging.DEBUG, file_logger={'path': '/tmp/HyperStreamViewer'})
 app = Flask(__name__)
 Bower(app)
 app.url_map.converters['list'] = ListConverter
@@ -71,38 +71,23 @@ def meta_data():
 @app.route("/channels")
 def channels():
     channel_id = None
-    channel_streams = None
+    channel_name = None
     descr_chann = None
 
     if 'channel_id' in request.args:
         channel_id = request.args['channel_id']
-        channel = hs.channel_manager[channel_id]
-        s = sorted([(stream_id, str(stream_id)) for stream_id in channel.streams.keys()], key=lambda x: x[1])
-        channel_streams = [x[0] for x in s]
-
-        table = {}
-        for stream in channel_streams:
-            for key, value in stream.meta_data:
-                if key not in table:
-                    table[key] = []
-
-        for stream in channel_streams:
-            for key in table.keys():
-                metadata = {key: value for key, value in stream.meta_data}
-                value = None if key not in metadata else metadata[key]
-                table[key].append(value)
+        channel_name = hs.channel_manager[channel_id].__class__.__name__
     else:
         avail_chann = hs.channel_manager.values()
         avail_chann.sort(key=lambda x: (x.channel_id, x.__class__.__name__))
         descr_chann = [{'id':c.channel_id, 'name':c.__class__.__name__,
             'len':len(c.streams)} for c in avail_chann]
 
-    return render_template("channels.html", hyperstream=hs,
-            channel_id=channel_id, channel_streams=channel_streams,
-            channels_descr=descr_chann)
+    return render_template("channels.html", channel_id=channel_id,
+            channel_name=channel_name, channels_descr=descr_chann)
 
 
-@app.route("/mpn_channels/<channel_id>")
+@app.route("/channels/<channel_id>")
 def channel_id_json(channel_id):
     channel = hs.channel_manager[channel_id]
     channel_name = channel.__class__.__name__
@@ -120,12 +105,15 @@ def channel_id_json(channel_id):
         row = []
         for key in columns:
             if key == 'stream.name':
-		href = url_for('streams', channel=channel_id,
-			       name=stream.name, **dict(stream.meta_data))
+                href = url_for('streams', channel=channel_id, name=stream.name,
+                        **dict(stream.meta_data))
                 row.append("<a href='{}'>{}</a>".format(href, stream.name))
             elif key == 'stream.end':
                 aux = channel.streams[stream].calculated_intervals.end
-                row.append(str(aux or ''))
+                if aux:
+                    row.append(str(aux.strftime('%Y-%m-%d')))
+                else:
+                    row.append('')
             else:
                 metadata = dict(stream.meta_data)
                 value = '' if key not in metadata else metadata[key]
@@ -133,25 +121,6 @@ def channel_id_json(channel_id):
         table.append(row)
     columns = [[x] for x in columns]
     return jsonify(dict(columns=columns, data=table))
-
-
-@app.route("/mpn_channels")
-def mpn_channels():
-    channel_id = None
-    channel_name = None
-    descr_chann = None
-
-    if 'channel_id' in request.args:
-        channel_id = request.args['channel_id']
-        channel_name = hs.channel_manager[channel_id].__class__.__name__
-    else:
-        avail_chann = hs.channel_manager.values()
-        avail_chann.sort(key=lambda x: (x.channel_id, x.__class__.__name__))
-        descr_chann = [{'id':c.channel_id, 'name':c.__class__.__name__,
-            'len':len(c.streams)} for c in avail_chann]
-
-    return render_template("mpn_channels.html", channel_id=channel_id,
-            channel_name=channel_name, channels_descr=descr_chann)
 
 
 def find_streams(d):
