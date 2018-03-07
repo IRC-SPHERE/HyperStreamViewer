@@ -18,7 +18,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
-from flask import Response, make_response
+from flask import Response, make_response, jsonify
 from jinja2 import Undefined
 import itertools
 from pprint import PrettyPrinter
@@ -148,7 +148,9 @@ def json_serial(obj):
 
 
 def json_response(data):
-    return Response(json.dumps(data, default=json_serial, iterable_as_array=True), mimetype="application/json")
+    return Response(json.dumps(data, default=json_serial,
+                               iterable_as_array=True),
+                    mimetype="application/json")
 
 
 def csv_response(data):
@@ -181,3 +183,9 @@ KNOWN_TYPES = {
     'str': str,
     'bool': bool
 }
+
+
+def exception_json(e, data):
+    return jsonify(dict(exception=str(type(e)),
+                        message=e.message,
+                        data=data))
