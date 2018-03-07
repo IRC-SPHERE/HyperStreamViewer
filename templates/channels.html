@@ -60,7 +60,7 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <h4 class="panel-title">
-                <a href="{{ url_for('mpn_channels', channel_id=channel.id) }}">{{ channel.id }}</a>
+                <a href="{{ url_for('channels', channel_id=channel.id) }}">{{ channel.id }}</a>
               </h4>
             </div>
             <div class="panel-body">
@@ -96,7 +96,7 @@
   <script type="text/javascript">
     $( document ).ready( function( $ ) {
       $.ajax({
-              "url": 'mpn_channels/{{ channel_id }}',
+              "url": 'channels/{{ channel_id }}',
               "success": function(json) {
                 var tableHeaders;
                 $.each(json.columns, function(i, val){
